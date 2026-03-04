@@ -9,7 +9,6 @@
     <link rel="icon" type="x-icon" href="favicon.ico">
 
     <style>
-        /* ── Setup overlay ── */
         #setup-overlay {
             position: fixed;
             inset: 0;
@@ -24,7 +23,6 @@
             box-sizing: border-box;
         }
         #setup-overlay.hidden { display: none; }
-
         #setup-overlay p {
             color: var(--color-fg);
             font-family: "Fira Code", monospace;
@@ -33,12 +31,7 @@
             text-align: center;
         }
         #setup-overlay a { color: var(--color-link); }
-
-        .setup-title {
-            color: var(--color-link-hover) !important;
-            font-size: 1.4em !important;
-        }
-
+        .setup-title { color: var(--color-link-hover) !important; font-size: 1.4em !important; }
         .setup-input {
             background: #3c3836;
             border: 1px solid var(--color-link);
@@ -52,7 +45,6 @@
             box-sizing: border-box;
         }
         .setup-input::placeholder { color: #928374; }
-
         #setup-save-btn {
             background: none;
             border: 1px solid var(--color-link);
@@ -66,15 +58,8 @@
             margin-top: 4px;
         }
         #setup-save-btn:hover { background: var(--color-link); color: var(--color-bg); }
+        #setup-error { color: #cc241d; font-family: "Fira Code", monospace; font-size: 0.85em; display: none; }
 
-        #setup-error {
-            color: #cc241d;
-            font-family: "Fira Code", monospace;
-            font-size: 0.85em;
-            display: none;
-        }
-
-        /* ── Sync indicator ── */
         #sync-indicator {
             position: fixed;
             bottom: 14px;
@@ -89,7 +74,6 @@
         }
         #sync-indicator.visible { opacity: 1; }
 
-        /* ── Settings reset link inside modal ── */
         #reset-config-btn {
             background: none;
             border: none;
@@ -108,19 +92,16 @@
 
 <body>
 
-    <!-- One-time setup overlay -->
     <div id="setup-overlay">
         <p class="setup-title">> ~/startpage setup</p>
-        <p>Enter your GitHub credentials to sync bookmarks across devices.<br>This is stored only in your browser — never sent anywhere except GitHub.</p>
-
+        <p>Enter your GitHub credentials to sync bookmarks across devices.<br>Stored only in your browser — never sent anywhere except GitHub.</p>
         <p style="color:#928374; font-size:0.85em !important;">
             1. Go to <a href="https://github.com/settings/tokens/new?scopes=gist&description=startpage-sync" target="_blank">GitHub → Settings → Tokens</a><br>
-            2. Create a token with <strong>gist</strong> scope<br>
-            3. Paste it below (leave Gist ID empty on first run — it'll be created for you)
+            2. Create a token with <strong>gist</strong> scope only<br>
+            3. Paste it below (leave Gist ID empty on first run)
         </p>
-
-        <input id="setup-token" class="setup-input" type="password" placeholder="GitHub Personal Access Token (ghp_...)" autocomplete="off" />
-        <input id="setup-gist-id" class="setup-input" type="text" placeholder="Gist ID (optional — leave empty to auto-create)" autocomplete="off" />
+        <input id="setup-token"   class="setup-input" type="password" placeholder="GitHub Personal Access Token (ghp_...)" autocomplete="off" />
+        <input id="setup-gist-id" class="setup-input" type="text"     placeholder="Gist ID (leave empty to auto-create)"  autocomplete="off" />
         <p id="setup-error"></p>
         <button id="setup-save-btn">[ connect ]</button>
     </div>
@@ -132,7 +113,6 @@
             <button id="settings-button" class="top-left-link-button"></button>
             <div class="gif"><img src="cat.gif" /></div>
         </div>
-
         <div class="right-container">
             <a href="https://claude.ai/new"         class="top-right-link-button button-1" target="_blank"></a>
             <a href="https://gemini.google.com/app"  class="top-right-link-button button-2" target="_blank"></a>
@@ -145,7 +125,6 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -158,9 +137,9 @@
     </div>
 
     <script>
-    // =============================================================================
-    // IndexedDB — local cache
-    // =============================================================================
+    // =========================================================================
+    // IndexedDB
+    // =========================================================================
     const IDB_NAME = 'startpage_db', IDB_VER = 1, IDB_STORE = 'bookmarks';
     let idb = null;
 
@@ -168,9 +147,8 @@
         return new Promise((resolve, reject) => {
             const req = indexedDB.open(IDB_NAME, IDB_VER);
             req.onupgradeneeded = e => {
-                const database = e.target.result;
-                if (!database.objectStoreNames.contains(IDB_STORE))
-                    database.createObjectStore(IDB_STORE, { keyPath: 'id' });
+                if (!e.target.result.objectStoreNames.contains(IDB_STORE))
+                    e.target.result.createObjectStore(IDB_STORE, { keyPath: 'id' });
             };
             req.onsuccess = e => { idb = e.target.result; resolve(); };
             req.onerror   = e => reject(e.target.error);
@@ -179,8 +157,7 @@
 
     function idbGet(key) {
         return new Promise((resolve, reject) => {
-            const tx  = idb.transaction(IDB_STORE, 'readonly');
-            const req = tx.objectStore(IDB_STORE).get(key);
+            const req = idb.transaction(IDB_STORE, 'readonly').objectStore(IDB_STORE).get(key);
             req.onsuccess = () => resolve(req.result ? req.result.value : null);
             req.onerror   = () => reject(req.error);
         });
@@ -188,20 +165,19 @@
 
     function idbSet(key, value) {
         return new Promise((resolve, reject) => {
-            const tx  = idb.transaction(IDB_STORE, 'readwrite');
-            const req = tx.objectStore(IDB_STORE).put({ id: key, value: value });
+            const req = idb.transaction(IDB_STORE, 'readwrite').objectStore(IDB_STORE).put({ id: key, value });
             req.onsuccess = () => resolve();
             req.onerror   = () => reject(req.error);
         });
     }
 
-    // =============================================================================
+    // =========================================================================
     // GitHub Gist API
-    // =============================================================================
+    // =========================================================================
     const GIST_FILENAME = 'startpage-bookmarks.json';
 
-    async function gistFetch(token, gistId) {
-        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+    async function gistFetch(token, id) {
+        const res = await fetch(`https://api.github.com/gists/${id}`, {
             headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github+json' }
         });
         if (!res.ok) throw new Error(`Gist fetch failed: ${res.status}`);
@@ -211,17 +187,15 @@
         return JSON.parse(content);
     }
 
-    async function gistSave(token, gistId, bookmarks) {
-        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+    async function gistSave(token, id, bookmarks) {
+        const res = await fetch(`https://api.github.com/gists/${id}`, {
             method: 'PATCH',
             headers: {
                 Authorization: `token ${token}`,
                 Accept: 'application/vnd.github+json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                files: { [GIST_FILENAME]: { content: JSON.stringify(bookmarks, null, 2) } }
-            })
+            body: JSON.stringify({ files: { [GIST_FILENAME]: { content: JSON.stringify(bookmarks, null, 2) } } })
         });
         if (!res.ok) throw new Error(`Gist save failed: ${res.status}`);
     }
@@ -241,13 +215,12 @@
             })
         });
         if (!res.ok) throw new Error(`Gist create failed: ${res.status}`);
-        const data = await res.json();
-        return data.id;
+        return (await res.json()).id;
     }
 
-    // =============================================================================
+    // =========================================================================
     // Default bookmarks
-    // =============================================================================
+    // =========================================================================
     const DEFAULT_BOOKMARKS = [
         { title: 'learn', links: [
             { text: 'tracker',    url: 'https://najmossalahin.github.io/Task_Tracker/', starred: false },
@@ -357,17 +330,17 @@
         ]},
     ];
 
-    // =============================================================================
-    // App state
-    // =============================================================================
+    // =========================================================================
+    // State
+    // =========================================================================
     let bookmarksData  = [];
     let githubToken    = null;
     let gistId         = null;
     const linksPerPage = 5;
 
-    // =============================================================================
+    // =========================================================================
     // Sync indicator
-    // =============================================================================
+    // =========================================================================
     const syncEl = document.getElementById('sync-indicator');
     let syncTimer = null;
     function showSync(msg, persist) {
@@ -376,49 +349,43 @@
         clearTimeout(syncTimer);
         if (!persist) syncTimer = setTimeout(() => syncEl.classList.remove('visible'), 2500);
     }
-    function hideSync() { syncEl.classList.remove('visible'); }
 
-    // =============================================================================
+    // =========================================================================
     // Clock
-    // =============================================================================
+    // =========================================================================
     function updateDateTime() {
         const now = new Date();
         let h = now.getHours();
-        const m  = String(now.getMinutes()).padStart(2, '0');
-        const s  = String(now.getSeconds()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
         const ap = h >= 12 ? 'PM' : 'AM';
         h = h % 12 || 12;
         document.getElementById('current-datetime').textContent =
-            now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) +
+            now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) +
             ` ${String(h).padStart(2,'0')}:${m}:${s} ${ap}`;
     }
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
-    // =============================================================================
+    // =========================================================================
     // Search bar
-    // =============================================================================
+    // =========================================================================
     const searchTextEl = document.getElementById('search-text');
     let searchQuery = '';
-
-    function isValidUrl(str) {
-        return /^(https?:\/\/[^\s]{2,}|www\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i.test(str);
-    }
+    const isValidUrl = s => /^(https?:\/\/[^\s]{2,}|www\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i.test(s);
 
     document.addEventListener('keydown', e => {
-        const modal = document.getElementById('settings-modal');
-        if (modal.classList.contains('show')) return;
-        if (['Backspace','Enter'].includes(e.key) || e.key.length === 1) e.preventDefault();
+        if (document.getElementById('settings-modal').classList.contains('show')) return;
+        if (['Backspace', 'Enter'].includes(e.key) || e.key.length === 1) e.preventDefault();
         if (e.key === 'Backspace') {
             searchQuery = searchQuery.slice(0, -1);
         } else if (e.key === 'Enter') {
             const q = searchQuery.trim();
-            if (q) {
-                const url = isValidUrl(q)
-                    ? (q.startsWith('http') ? q : `http://${q}`)
-                    : `https://www.duckduckgo.com/search?q=${encodeURIComponent(q)}`;
-                window.open(url, '_blank');
-            }
+            if (q) window.open(
+                isValidUrl(q) ? (q.startsWith('http') ? q : `http://${q}`)
+                              : `https://www.duckduckgo.com/search?q=${encodeURIComponent(q)}`,
+                '_blank'
+            );
             searchQuery = '';
         } else if (e.key.length === 1) {
             searchQuery += e.key;
@@ -426,40 +393,31 @@
         searchTextEl.textContent = searchQuery;
     });
 
-    // =============================================================================
-    // Render bookmarks
-    // =============================================================================
+    // =========================================================================
+    // Render bookmarks (main page)
+    // =========================================================================
     function renderBookmarks() {
         const container = document.getElementById('bookmarks-container');
         container.innerHTML = '';
-
         bookmarksData.forEach(cat => {
-            const catDiv   = document.createElement('div');
-            catDiv.classList.add('category');
-
-            const linksDiv = document.createElement('div');
-            linksDiv.classList.add('links');
-
-            const titleLi = document.createElement('li');
-            titleLi.classList.add('title');
+            const catDiv   = document.createElement('div'); catDiv.classList.add('category');
+            const linksDiv = document.createElement('div'); linksDiv.classList.add('links');
+            const titleLi  = document.createElement('li');  titleLi.classList.add('title');
             titleLi.textContent = cat.title;
             linksDiv.appendChild(titleLi);
 
             cat.allOriginalLinks = cat.links.map(link => {
                 const li = document.createElement('li');
                 const a  = document.createElement('a');
-                a.href        = link.url;
-                a.textContent = link.text;
-                a.target      = '_blank';
+                a.href = link.url; a.textContent = link.text; a.target = '_blank';
                 if (link.starred) a.classList.add('starred-link');
                 li.appendChild(a);
                 return li;
             });
             cat.currentPage = 0;
 
-            for (let i = 0; i < linksPerPage && i < cat.allOriginalLinks.length; i++) {
+            for (let i = 0; i < linksPerPage && i < cat.allOriginalLinks.length; i++)
                 linksDiv.appendChild(cat.allOriginalLinks[i]);
-            }
             catDiv.appendChild(linksDiv);
 
             const toggleBtn = document.createElement('button');
@@ -485,32 +443,27 @@
         });
     }
 
-    // =============================================================================
-    // Settings modal
-    // =============================================================================
-    const settingsButton   = document.getElementById('settings-button');
+    // =========================================================================
+    // Modal — starred state is kept in data-starred attribute on each row
+    // =========================================================================
     const settingsModal    = document.getElementById('settings-modal');
-    const closeButton      = settingsModal.querySelector('.close-button');
     const modalCatContainer = document.getElementById('modal-categories');
-    const addCatButton     = document.getElementById('add-category-button');
-    const saveButton       = document.getElementById('save-settings-button');
-    const resetCfgBtn      = document.getElementById('reset-config-btn');
 
-    settingsButton.addEventListener('click', () => {
+    document.getElementById('settings-button').addEventListener('click', () => {
         settingsModal.classList.add('show');
         renderModalContent();
     });
-    closeButton.addEventListener('click', () => settingsModal.classList.remove('show'));
-    window.addEventListener('click', e => {
-        if (e.target === settingsModal) settingsModal.classList.remove('show');
-    });
+    settingsModal.querySelector('.close-button').addEventListener('click', () => settingsModal.classList.remove('show'));
+    window.addEventListener('click', e => { if (e.target === settingsModal) settingsModal.classList.remove('show'); });
 
     function renderModalContent() {
         modalCatContainer.innerHTML = '';
         bookmarksData.forEach((cat, ci) => {
             const catDiv = document.createElement('div');
             catDiv.classList.add('modal-category-item');
+            catDiv.dataset.catIndex = ci;
 
+            // ── Category header ──
             const header = document.createElement('div');
             header.classList.add('modal-category-header');
 
@@ -518,41 +471,41 @@
             titleInput.type  = 'text';
             titleInput.value = cat.title;
             titleInput.classList.add('category-title-input');
-            titleInput.addEventListener('change', e => { cat.title = e.target.value; });
+            // NO change listener — value read at save time
             header.appendChild(titleInput);
 
             const delCatBtn = document.createElement('button');
             delCatBtn.classList.add('delete-button');
             delCatBtn.textContent = 'Delete Category';
             delCatBtn.addEventListener('click', () => {
-                const dlg = document.createElement('div');
-                dlg.classList.add('custom-confirm');
-                dlg.innerHTML = `<p>Delete this category?</p><button id="cy">Yes</button><button id="cn">No</button>`;
-                document.body.appendChild(dlg);
-                document.getElementById('cy').onclick = () => {
-                    bookmarksData.splice(ci, 1);
-                    renderModalContent();
-                    document.body.removeChild(dlg);
-                };
-                document.getElementById('cn').onclick = () => document.body.removeChild(dlg);
+                // Collect current DOM state before splicing
+                collectFromDOM();
+                bookmarksData.splice(ci, 1);
+                renderModalContent();
             });
             header.appendChild(delCatBtn);
             catDiv.appendChild(header);
 
+            // ── Links ──
             const linksList = document.createElement('div');
             linksList.classList.add('modal-links-list');
 
             cat.links.forEach((link, li) => {
                 const item = document.createElement('div');
                 item.classList.add('modal-link-item');
+                item.dataset.linkIndex = li;
+                item.dataset.starred   = link.starred ? '1' : '0';
 
                 const starBtn = document.createElement('button');
                 starBtn.classList.add('star-button');
                 starBtn.innerHTML = link.starred ? '★' : '☆';
                 if (link.starred) starBtn.classList.add('is-starred');
                 starBtn.addEventListener('click', () => {
-                    link.starred = !link.starred;
-                    renderModalContent();
+                    // Toggle starred on the item's dataset (no full re-render needed)
+                    const isStarred = item.dataset.starred === '1';
+                    item.dataset.starred = isStarred ? '0' : '1';
+                    starBtn.innerHTML = isStarred ? '☆' : '★';
+                    starBtn.classList.toggle('is-starred', !isStarred);
                 });
                 item.appendChild(starBtn);
 
@@ -560,21 +513,22 @@
                 textIn.type  = 'text';
                 textIn.value = link.text;
                 textIn.placeholder = 'Link Text';
-                textIn.addEventListener('change', e => { link.text = e.target.value; });
+                // NO change listener — value read at save time
                 item.appendChild(textIn);
 
                 const urlIn = document.createElement('input');
                 urlIn.type  = 'url';
                 urlIn.value = link.url;
                 urlIn.placeholder = 'Link URL';
-                urlIn.addEventListener('change', e => { link.url = e.target.value; });
+                // NO change listener — value read at save time
                 item.appendChild(urlIn);
 
                 const delBtn = document.createElement('button');
                 delBtn.classList.add('delete-button');
                 delBtn.textContent = 'Delete Link';
                 delBtn.addEventListener('click', () => {
-                    cat.links.splice(li, 1);
+                    collectFromDOM();
+                    bookmarksData[ci].links.splice(li, 1);
                     renderModalContent();
                 });
                 item.appendChild(delBtn);
@@ -585,7 +539,8 @@
             addLinkBtn.classList.add('add-link-button');
             addLinkBtn.textContent = 'Add Link';
             addLinkBtn.addEventListener('click', () => {
-                cat.links.push({ text: '', url: '', starred: false });
+                collectFromDOM();
+                bookmarksData[ci].links.push({ text: '', url: '', starred: false });
                 renderModalContent();
             });
             linksList.appendChild(addLinkBtn);
@@ -594,20 +549,46 @@
         });
     }
 
-    addCatButton.addEventListener('click', () => {
+    // READ ALL VALUES FROM THE DOM RIGHT NOW — called before any save/delete/add
+    function collectFromDOM() {
+        const catDivs = modalCatContainer.querySelectorAll('.modal-category-item');
+        const result  = [];
+
+        catDivs.forEach(catDiv => {
+            const title     = catDiv.querySelector('.category-title-input').value;
+            const linkItems = catDiv.querySelectorAll('.modal-link-item');
+            const links     = [];
+
+            linkItems.forEach(item => {
+                const inputs  = item.querySelectorAll('input');
+                const text    = inputs[0].value;
+                const url     = inputs[1].value;
+                const starred = item.dataset.starred === '1';
+                links.push({ text, url, starred });
+            });
+
+            result.push({ title, links });
+        });
+
+        bookmarksData = result;
+    }
+
+    document.getElementById('add-category-button').addEventListener('click', () => {
+        collectFromDOM();
         bookmarksData.push({ title: 'New Category', links: [{ text: '', url: '', starred: false }] });
         renderModalContent();
     });
 
-    // Save → IndexedDB (instant local) + GitHub Gist (cloud sync)
-    saveButton.addEventListener('click', async () => {
-        try {
-            // 1. Save to IndexedDB immediately
-            await idbSet('bookmarksData', bookmarksData);
-            settingsModal.classList.remove('show');
-            renderBookmarks();
+    // SAVE: collect from DOM → persist → close modal → re-render bookmarks
+    document.getElementById('save-settings-button').addEventListener('click', async () => {
+        collectFromDOM();                             // ← THE fix: read DOM first
 
-            // 2. Push to Gist in background
+        settingsModal.classList.remove('show');      // close modal
+        renderBookmarks();                           // update main page immediately
+
+        try {
+            await idbSet('bookmarksData', bookmarksData);  // local cache
+
             if (githubToken && gistId) {
                 showSync('syncing to cloud...', true);
                 await gistSave(githubToken, gistId, bookmarksData);
@@ -619,99 +600,79 @@
         }
     });
 
-    // Reset config
-    resetCfgBtn.addEventListener('click', async () => {
+    document.getElementById('reset-config-btn').addEventListener('click', async () => {
         await idbSet('githubConfig', null);
         settingsModal.classList.remove('show');
         location.reload();
     });
 
-    // =============================================================================
+    // =========================================================================
     // Setup overlay
-    // =============================================================================
+    // =========================================================================
     const setupOverlay = document.getElementById('setup-overlay');
-    const setupToken   = document.getElementById('setup-token');
-    const setupGistId  = document.getElementById('setup-gist-id');
-    const setupSaveBtn = document.getElementById('setup-save-btn');
     const setupError   = document.getElementById('setup-error');
+    const setupSaveBtn = document.getElementById('setup-save-btn');
 
-    function showSetupError(msg) {
-        setupError.textContent = msg;
-        setupError.style.display = 'block';
-    }
+    function showSetupError(msg) { setupError.textContent = msg; setupError.style.display = 'block'; }
 
     setupSaveBtn.addEventListener('click', async () => {
-        const token  = setupToken.value.trim();
-        const gistIn = setupGistId.value.trim();
-
+        const token  = document.getElementById('setup-token').value.trim();
+        const gistIn = document.getElementById('setup-gist-id').value.trim();
         if (!token) { showSetupError('Token is required.'); return; }
 
         setupSaveBtn.textContent = '[ connecting... ]';
-        setupSaveBtn.disabled = true;
+        setupSaveBtn.disabled    = true;
         setupError.style.display = 'none';
 
         try {
             let resolvedGistId = gistIn;
-
             if (!resolvedGistId) {
-                // Auto-create a new private Gist
                 showSync('creating Gist...', true);
                 resolvedGistId = await gistCreate(token, DEFAULT_BOOKMARKS);
                 bookmarksData  = DEFAULT_BOOKMARKS;
             } else {
-                // Load existing Gist
                 showSync('fetching bookmarks...', true);
                 bookmarksData = await gistFetch(token, resolvedGistId);
             }
-
-            // Persist config
-            await idbSet('githubConfig', { token, gistId: resolvedGistId });
+            await idbSet('githubConfig',  { token, gistId: resolvedGistId });
             await idbSet('bookmarksData', bookmarksData);
-
             githubToken = token;
             gistId      = resolvedGistId;
-
             setupOverlay.classList.add('hidden');
             renderBookmarks();
             showSync('synced ✓');
         } catch (err) {
-            showSetupError(`Error: ${err.message}. Check your token / Gist ID.`);
+            showSetupError(`Error: ${err.message}`);
             setupSaveBtn.textContent = '[ connect ]';
-            setupSaveBtn.disabled = false;
-            hideSync();
+            setupSaveBtn.disabled    = false;
         }
     });
 
-    // =============================================================================
+    // =========================================================================
     // Boot
-    // =============================================================================
+    // =========================================================================
     async function init() {
         await openIDB();
 
-        // Migrate old localStorage data to IndexedDB
+        // Migrate old localStorage data
         const legacy = localStorage.getItem('bookmarksData');
         if (legacy) {
             try { await idbSet('bookmarksData', JSON.parse(legacy)); } catch(_) {}
             localStorage.removeItem('bookmarksData');
         }
 
-        // Load saved config
         const config = await idbGet('githubConfig');
 
         if (config && config.token && config.gistId) {
             githubToken = config.token;
             gistId      = config.gistId;
 
-            // Show cached data immediately (instant load)
+            // Load cache instantly
             const cached = await idbGet('bookmarksData');
-            if (cached) {
-                bookmarksData = cached;
-                renderBookmarks();
-            }
-
+            if (cached) { bookmarksData = cached; renderBookmarks(); }
             setupOverlay.classList.add('hidden');
 
-            // Fetch latest from Gist in background (may differ from cache)
+            // Fetch latest from Gist in background
             try {
                 showSync('syncing...', true);
                 const remote = await gistFetch(githubToken, gistId);
@@ -719,19 +680,13 @@
                 await idbSet('bookmarksData', remote);
                 renderBookmarks();
                 showSync('synced ✓');
-            } catch (err) {
-                console.warn('Background Gist fetch failed, using cache:', err);
+            } catch (_) {
                 showSync('offline — using cache');
             }
-        } else {
-            // First time — show setup screen
-            // But if there's cached data from before, preload it
-            const cached = await idbGet('bookmarksData');
-            if (cached) { bookmarksData = cached; }
         }
+        // else: setup overlay stays visible
     }
 
-    // Run after DOM is fully ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
