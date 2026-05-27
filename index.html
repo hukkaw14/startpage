@@ -132,6 +132,9 @@
             <div class="head">
                 <span id="prompt-prefix">> cd ~/</span><span id="search-text"></span><span id="blinker" class="blinking">_</span>
             </div>
+            <div class="mobile-search-wrap">
+                <input class="mobile-search-input" id="mobile-search" type="search" placeholder="search or enter url…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            </div>
             <div class="bookmarks" id="bookmarks-container"></div>
         </div>
     </div>
@@ -546,6 +549,24 @@
         searchTextElement.textContent = searchQuery;
     });
 
+    // ── Mobile search input ──
+    const mobileSearch = document.getElementById('mobile-search');
+    if (mobileSearch) {
+        mobileSearch.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const q = mobileSearch.value.trim();
+                if (q) {
+                    const url = isValidUrl(q)
+                        ? (q.startsWith('http') ? q : `http://${q}`)
+                        : `https://www.duckduckgo.com/search?q=${encodeURIComponent(q)}`;
+                    window.open(url, '_blank');
+                }
+                mobileSearch.value = '';
+                mobileSearch.blur();
+            }
+        });
+    }
+
     // ═══════════════════════════════════════════════════
     //  RENDER BOOKMARKS
     // ═══════════════════════════════════════════════════
@@ -608,7 +629,6 @@
                     });
                 }
 
-                // Clicking the bar background cycles pages
                 dotsContainer.addEventListener('click', () => {
                     currentPage = (currentPage + 1) % totalPages;
                     showPage(currentPage);
@@ -621,11 +641,7 @@
                     if (i === 0) dot.classList.add('active');
                     dot.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        if (i === currentPage) {
-                            currentPage = (currentPage + 1) % totalPages;
-                        } else {
-                            currentPage = i;
-                        }
+                        currentPage = i === currentPage ? (i + 1) % totalPages : i;
                         showPage(currentPage);
                         updateDots();
                     });
