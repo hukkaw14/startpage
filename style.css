@@ -28,26 +28,24 @@ html::-webkit-scrollbar {
 
 .container {
   display: grid;
-  /* Increased min and max width for the left column to make the GIF larger */
   grid-template-columns: 1fr minmax(450px, 600px) minmax(700px, 1fr) 1fr;
   grid-template-areas:
     ". left right .";
   column-gap: 40px;
   justify-items: center;
-  align-items: flex-start; /* Changed to flex-start to allow content to push down */
+  align-items: stretch;
   min-height: 100%;
   width: 100%;
 }
 
 .left-container {
   grid-area: left;
-  aspect-ratio: 1/1;
   max-width: 100%;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative; /* Added for positioning the settings button */
+  position: relative;
 }
 
 .right-container {
@@ -76,7 +74,6 @@ html::-webkit-scrollbar {
   max-height: 100%;
   height: auto;
   width: auto;
-  margin-top: 80px; /* Adjusted to pull the image slightly up from 100px */
 }
 
 .head {
@@ -118,56 +115,72 @@ html::-webkit-scrollbar {
 .category {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto; /* Allow categories to grow and shrink, with a flexible basis */
-  min-width: 90px; /* Adjusted minimum width for categories */
-  max-width: 160px; /* Adjusted maximum width for categories */
+  flex: 1 1 auto;
+  min-width: 90px;
+  max-width: 155px;
   text-align: center;
   box-sizing: border-box;
-  padding: 10px; /* Added padding */
-  border: 1px solid rgba(235, 219, 178, 0.2); /* Subtle border using Gruvbox fg with transparency */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Soft shadow */
-  background-color: rgba(40, 40, 40, 0.8); /* Slightly transparent Gruvbox dark hard background */
-  position: relative; /* Needed for positioning the button */
+  padding: 10px 8px;
+  border: 1px solid rgba(235, 219, 178, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: rgba(40, 40, 40, 0.8);
+  position: relative;
 }
 
 .links {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 4px;
+  padding-bottom: 8px;
   width: 100%;
+  gap: 2px;
 }
 
 .title {
-  font-size: 20px;
-  margin-bottom: 5px;
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  color: var(--color-fg);
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(235, 219, 178, 0.12);
+  width: 100%;
 }
 
 li {
-  font-size: 17px; /* Changed to 17px as requested */
+  font-size: 15px;
   list-style-type: none;
-  padding: 3px;
+  padding: 3px 4px;
+  line-height: 1.35;
+  width: 100%;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+li:not(.title):hover {
+  background-color: rgba(235, 219, 178, 0.05);
 }
 
 a:link {
   text-decoration: none;
   color: var(--color-link);
-  transition: color 0.3s ease; /* Smooth transition for hover effect */
+  transition: color 0.2s ease;
+  letter-spacing: 0.02em;
 }
 
 a.starred-link { /* New style for starred links */
-    color: var(--color-red) !important; /* Added !important for a hard fix */
+    color: var(--color-red) !important;
 }
 
 a:visited {
-  color: var(--color-link); /* Changed to use the same color as a:link */
+  color: var(--color-link-visited);
 }
 
 a:hover {
   color: var(--color-link-hover);
-  text-shadow: 0 0 5px var(--color-link-hover); /* Subtle glow on hover */
+  text-shadow: 0 0 6px rgba(254, 128, 25, 0.4);
 }
 
 .blinking {
@@ -189,106 +202,295 @@ a:hover {
   }
 }
 
-/* Styles for the new link buttons */
-.top-right-link-button {
-    position: fixed; /* Position relative to the viewport */
-    top: 15px; /* Distance from the top */
-    width: 10px; /* Smaller size */
-    height: 10px; /* Smaller size */
-    border-radius: 50%; /* Makes it round */
-    background-color: #a89984; /* Gruvbox grey background 20% dimmer */
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 1000; /* Ensure it's on top of everything */
-    display: block; /* Make it a block element to apply width/height */
-    text-decoration: none; /* Remove underline for the link */
-}
-
-.top-right-link-button:hover {
-    background-color: #928374; /* Slightly darker on hover for the new color */
-}
-
-/* Specific positioning for each button */
-.button-1 {
-    right: 15px; /* Original button position */
-}
-
-.button-2 {
-    right: 35px; /* 15px (original) + 10px (button width) + 10px (spacing) */
-}
-
-.button-3 {
-    right: 55px; /* 35px (button 2) + 10px (button width) + 10px (spacing) */
-}
-
-/* New style for the top-left settings button */
+/* ── Top dot buttons shared base ── */
+.top-right-link-button,
 .top-left-link-button {
-    position: fixed; /* Position relative to the viewport */
-    top: 15px; /* Distance from the top */
-    left: 15px; /* Distance from the left */
-    width: 10px; /* Smaller size */
-    height: 10px; /* Smaller size */
-    border-radius: 50%; /* Makes it round */
-    background-color: #a89984; /* Gruvbox grey background 20% dimmer */
+    position: fixed;
+    top: 15px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
     border: none;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 1000; /* Ensure it's on top of everything */
-    display: block; /* Make it a block element to apply width/height */
-    text-decoration: none; /* Remove underline for the link */
+    z-index: 1000;
+    display: block;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    /* Tooltip base */
+    overflow: visible;
 }
 
+/* Shared tooltip style */
+.top-right-link-button::after,
+.top-left-link-button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1d2021;
+    color: var(--color-fg);
+    font-family: "Fira Code", monospace;
+    font-size: 10px;
+    white-space: nowrap;
+    padding: 3px 7px;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    border: 1px solid rgba(235, 219, 178, 0.15);
+}
+
+/* Settings button tooltip: anchor to left edge so it doesn't clip */
+.top-left-link-button::after {
+    left: 0;
+    transform: none;
+}
+
+/* Rightmost button (claude) tooltip: anchor to right edge */
+.button-1::after {
+    left: auto;
+    right: 0;
+    transform: none;
+}
+
+.top-right-link-button:hover::after,
+.top-left-link-button:hover::after {
+    opacity: 1;
+}
+
+.top-right-link-button:hover,
 .top-left-link-button:hover {
-    background-color: #928374; /* Slightly darker on hover for the new color */
+    transform: scale(1.4);
+    filter: brightness(1.25);
+}
+
+/* button-1 → Claude → Gruvbox aqua */
+.button-1 {
+    right: 15px;
+    background-color: #83a598;
+    box-shadow: 0 0 5px rgba(131, 165, 152, 0.35);
+}
+
+/* button-2 → Gemini → Gruvbox blue */
+.button-2 {
+    right: 35px;
+    background-color: #458588;
+    box-shadow: 0 0 5px rgba(69, 133, 136, 0.35);
+}
+
+/* button-3 → ChatGPT → Gruvbox green */
+.button-3 {
+    right: 55px;
+    background-color: #b8bb26;
+    box-shadow: 0 0 5px rgba(184, 187, 38, 0.35);
+}
+
+/* Settings button → Gruvbox orange (edit/action color) */
+.top-left-link-button {
+    left: 15px;
+    background-color: #fe8019;
+    box-shadow: 0 0 5px rgba(254, 128, 25, 0.35);
 }
 
 
-/* Styles for the toggle links button */
-.toggle-links-button {
-    background: none;
-    border: none;
-    color: var(--color-link-hover); /* Use hover color for visibility */
-    font-size: 1.5em; /* Make it noticeable */
+/* Page dot bar — full width clickable area */
+.page-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0px;
+    width: calc(100% + 16px);
+    margin-left: -8px;
+    margin-right: -8px;
+    margin-top: 6px;
+    padding: 6px 0;
     cursor: pointer;
-    margin-top: 10px; /* Space from the last visible link */
+    border-radius: 0 0 8px 8px;
+    transition: background-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.page-dots:hover {
+    background-color: rgba(254, 128, 25, 0.08);
+}
+
+.page-dots:active {
+    background-color: rgba(254, 128, 25, 0.18);
+}
+
+.page-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: none;
+    background-color: #a89984;
+    cursor: pointer;
+    padding: 4px;
+    box-sizing: content-box;
+    background-clip: content-box;
+    transition: background-color 0s, transform 0.15s ease, opacity 0.15s ease;
+    opacity: 0.45;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.page-dot.active {
+    background-color: var(--color-link-hover);
+    opacity: 1;
+    transform: scale(1.25);
+}
+
+.page-dot:hover {
+    opacity: 0.85;
+    transform: scale(1.2);
+}
+
+/* ── Responsive Breakpoints ── */
+
+/* Tablet landscape: collapse side gutters, compress columns */
+@media (max-width: 1200px) {
+  .container {
+    grid-template-columns: minmax(260px, 380px) 1fr;
+    grid-template-areas: "left right";
+    column-gap: 24px;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+
+  .left-container {
+    max-width: 380px;
+  }
+
+  .gif img {
+    margin-top: 40px;
+  }
+}
+
+/* Tablet portrait: stack layout vertically */
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "left"
+      "right";
+    row-gap: 0;
     padding: 0;
-    line-height: 1; /* Prevent extra space */
-    transition: color 0.3s ease;
-}
+  }
 
-.toggle-links-button:hover {
-    color: var(--color-fg); /* Brighter on hover */
-}
+  .left-container {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    aspect-ratio: 1/1;
+  }
 
-/* Responsive adjustments for the bookmarks grid */
-@media (max-width: 992px) { /* Adjusted breakpoint for 3 columns */
+  .gif img {
+    margin-top: 20px;
+    max-width: 260px;
+  }
+
+  .right-container {
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  .datetime-container {
+    font-size: 1.1em;
+    margin-top: 10px;
+    margin-bottom: 12px;
+  }
+
+  .head {
+    font-size: 24px;
+    margin-top: 4px;
+  }
+
   .bookmarks {
-    grid-template-columns: repeat(3, 1fr); /* 3 columns for medium screens */
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 24px;
+    gap: 14px;
   }
 }
 
-@media (max-width: 768px) {
-  .bookmarks {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns for smaller screens */
-    gap: 15px;
+/* Mobile: tighter layout */
+@media (max-width: 600px) {
+  .left-container {
+    max-width: 220px;
   }
+
+  .gif img {
+    max-width: 200px;
+    margin-top: 16px;
+  }
+
+  .right-container {
+    padding: 0 12px;
+  }
+
+  .datetime-container {
+    font-size: 0.9em;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .head {
+    font-size: 20px;
+  }
+
+  .bookmarks {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+  }
+
   .category {
     padding: 8px;
+    min-width: unset;
+    max-width: unset;
   }
+
   .title {
-    font-size: 1.3em;
+    font-size: 1em;
   }
+
   li {
-    font-size: 0.95em; /* Adjusted for smaller screens to match new size (17px / 18px base) */
-    padding: 4px;
+    font-size: 14px;
+    padding: 3px;
+  }
+
+  /* Move dots to more accessible positions on mobile */
+  .top-right-link-button {
+    top: 10px;
+    width: 9px;
+    height: 9px;
+  }
+  .button-1 { right: 12px; }
+  .button-2 { right: 30px; }
+  .button-3 { right: 48px; }
+
+  .top-left-link-button {
+    top: 10px;
+    left: 12px;
+    width: 9px;
+    height: 9px;
   }
 }
 
-@media (max-width: 480px) {
+/* Very small screens */
+@media (max-width: 380px) {
   .bookmarks {
-    grid-template-columns: 1fr; /* Single column on very small screens */
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .head {
+    font-size: 17px;
+  }
+
+  .datetime-container {
+    font-size: 0.8em;
   }
 }
 

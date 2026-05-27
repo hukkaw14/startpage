@@ -116,16 +116,16 @@
 
     <div class="container">
         <div class="left-container">
-            <button id="settings-button" class="top-left-link-button"></button>
+            <button id="settings-button" class="top-left-link-button" data-tooltip="settings"></button>
             <div class="gif">
                 <img src="cat.gif" />
             </div>
         </div>
 
         <div class="right-container">
-            <a href="https://claude.ai/new" class="top-right-link-button button-1" target="_blank"></a>
-            <a href="https://gemini.google.com/app" class="top-right-link-button button-2" target="_blank"></a>
-            <a href="https://chatgpt.com" class="top-right-link-button button-3" target="_blank"></a>
+            <a href="https://claude.ai/new" class="top-right-link-button button-1" target="_blank" data-tooltip="claude"></a>
+            <a href="https://gemini.google.com/app" class="top-right-link-button button-2" target="_blank" data-tooltip="gemini"></a>
+            <a href="https://chatgpt.com" class="top-right-link-button button-3" target="_blank" data-tooltip="chatgpt"></a>
             <div class="datetime-container">
                 <div id="current-datetime"></div>
             </div>
@@ -596,16 +596,44 @@
             showPage(0);
             categoryDiv.appendChild(linksDiv);
 
-            const toggleButton = document.createElement('button');
-            toggleButton.classList.add('toggle-links-button');
-            toggleButton.textContent = '>';
-            toggleButton.style.display = totalLinks <= linksPerPage ? 'none' : 'block';
-            toggleButton.addEventListener('click', () => {
-                currentPage++;
-                if (currentPage * linksPerPage >= totalLinks) currentPage = 0;
-                showPage(currentPage);
-            });
-            categoryDiv.appendChild(toggleButton);
+            const totalPages = Math.ceil(totalLinks / linksPerPage);
+
+            if (totalPages > 1) {
+                const dotsContainer = document.createElement('div');
+                dotsContainer.classList.add('page-dots');
+
+                function updateDots() {
+                    Array.from(dotsContainer.querySelectorAll('.page-dot')).forEach((dot, i) => {
+                        dot.classList.toggle('active', i === currentPage);
+                    });
+                }
+
+                // Clicking the bar background cycles pages
+                dotsContainer.addEventListener('click', () => {
+                    currentPage = (currentPage + 1) % totalPages;
+                    showPage(currentPage);
+                    updateDots();
+                });
+
+                for (let i = 0; i < totalPages; i++) {
+                    const dot = document.createElement('button');
+                    dot.classList.add('page-dot');
+                    if (i === 0) dot.classList.add('active');
+                    dot.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (i === currentPage) {
+                            currentPage = (currentPage + 1) % totalPages;
+                        } else {
+                            currentPage = i;
+                        }
+                        showPage(currentPage);
+                        updateDots();
+                    });
+                    dotsContainer.appendChild(dot);
+                }
+
+                categoryDiv.appendChild(dotsContainer);
+            }
 
             container.appendChild(categoryDiv);
         });
