@@ -88,6 +88,90 @@
             z-index: 999;
             pointer-events: none;
         }
+
+        /* ── Weather bar ── */
+        /* ── Weather bar ── */
+        #weather-bar {
+            font-size: 0.72em;
+            color: #a89984;
+            margin-top: 10px;
+            cursor: pointer;
+            letter-spacing: 0.03em;
+            transition: color 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            display: block;
+        }
+        #weather-bar:hover { color: #ebdbb2; }
+        #weather-bar:empty { display: none; }
+
+        /* ── Location settings block ── */
+        .location-settings-block {
+            background: rgba(60,56,54,0.5);
+            border: 1px solid rgba(235,219,178,0.12);
+            border-radius: 7px;
+            padding: 12px 14px 10px;
+            margin-bottom: 20px;
+        }
+        .location-settings-label {
+            font-size: 0.75em;
+            color: #a89984;
+            letter-spacing: 0.06em;
+            margin-bottom: 8px;
+        }
+        .location-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .location-row #location-input {
+            flex: 1;
+            min-width: 120px;
+            padding: 8px;
+            border: 1px solid #83a598;
+            border-radius: 5px;
+            background: #3c3836;
+            color: #ebdbb2;
+            font-family: "Fira Code", monospace;
+            font-size: 0.88em;
+            box-sizing: border-box;
+        }
+        .loc-btn {
+            padding: 8px 12px !important;
+            font-size: 0.82em !important;
+            white-space: nowrap;
+        }
+        #location-status {
+            font-size: 0.75em;
+            color: #83a598;
+            margin-top: 6px;
+            min-height: 16px;
+        }
+
+        /* gif settings rows */
+        .gif-settings-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .gif-thumb {
+            width: 36px;
+            height: 36px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #504945;
+            flex-shrink: 0;
+        }
+        .gif-row-url {
+            flex: 1;
+            font-size: 0.75em;
+            color: #a89984;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -117,17 +201,19 @@
     <div class="container">
         <div class="left-container">
             <button id="settings-button" class="top-left-link-button" data-tooltip="settings"></button>
-            <div class="gif">
-                <img src="cat.gif" />
+            <div class="gif" id="gif-wrap">
+                <img id="gif-img" src="cat.gif" />
+                <div id="gif-page-dots" class="page-dots" style="display:none;"></div>
             </div>
         </div>
 
         <div class="right-container">
-            <a href="https://claude.ai/new" class="top-right-link-button button-1" target="_blank" data-tooltip="claude"></a>
-            <a href="https://gemini.google.com/app" class="top-right-link-button button-2" target="_blank" data-tooltip="gemini"></a>
-            <a href="https://chatgpt.com" class="top-right-link-button button-3" target="_blank" data-tooltip="chatgpt"></a>
+            <a id="dot-btn-1" class="top-right-link-button button-1" target="_blank"></a>
+            <a id="dot-btn-2" class="top-right-link-button button-2" target="_blank"></a>
+            <a id="dot-btn-3" class="top-right-link-button button-3" target="_blank"></a>
             <div class="datetime-container">
                 <div id="current-datetime"></div>
+                <div id="weather-bar" title="Tap for more details"></div>
             </div>
             <div class="head">
                 <span id="prompt-prefix">> cd ~/</span><span id="search-text"></span><span id="blinker" class="blinking">_</span>
@@ -143,7 +229,37 @@
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Edit Bookmarks</h2>
+            <h2>Settings</h2>
+
+            <!-- ── GIFs ── -->
+            <div class="location-settings-block" style="margin-bottom:14px;">
+                <div class="location-settings-label">gifs</div>
+                <div id="gif-settings-list"></div>
+                <div class="location-row" style="margin-top:8px;">
+                    <input id="gif-url-input" type="url" placeholder="paste gif url or data:… " autocomplete="off"
+                        style="flex:1;min-width:0;padding:7px 8px;border:1px solid #83a598;border-radius:5px;background:#3c3836;color:#ebdbb2;font-family:'Fira Code',monospace;font-size:0.82em;box-sizing:border-box;" />
+                    <button id="gif-add-btn" class="modal-button loc-btn">Add</button>
+                </div>
+                <div id="gif-status" style="font-size:0.75em;color:#83a598;margin-top:5px;min-height:14px;"></div>
+            </div>
+
+            <!-- ── Dot links ── -->
+            <div class="location-settings-block" style="margin-bottom:14px;">
+                <div class="location-settings-label">top links</div>
+                <div id="dot-links-settings"></div>
+            </div>
+
+            <!-- ── Location ── -->
+            <div class="location-settings-block">
+                <div class="location-settings-label">weather location</div>
+                <div class="location-row">
+                    <input id="location-input" type="text" placeholder="City name, e.g. Tokyo" autocomplete="off" />
+                    <button id="location-auto-btn" class="modal-button loc-btn" title="Use device location"> Auto</button>
+                    <button id="location-set-btn"  class="modal-button loc-btn">Set</button>
+                </div>
+                <div id="location-status"></div>
+            </div>
+
             <div id="modal-categories"></div>
             <button id="add-category-button" class="modal-button">Add New Category</button>
             <button id="save-settings-button" class="modal-button">Save Changes</button>
@@ -245,21 +361,33 @@
         const gist = await res.json();
         const content = gist.files[GIST_FILENAME]?.content;
         if (!content) throw new Error('Gist file missing');
-        return JSON.parse(content);
+        const parsed = JSON.parse(content);
+        // Support old format (plain array) and new format (object with bookmarks key)
+        if (Array.isArray(parsed)) return { bookmarks: parsed, dotLinks: null, weatherCity: null };
+        return parsed;
     }
 
-    async function saveToGist(token, gistId, data) {
+    async function saveToGist(token, gistId, settings) {
         const res = await fetch(`${GIST_API}/gists/${gistId}`, {
             method: 'PATCH',
             headers: gistHeaders(token),
             body: JSON.stringify({
                 files: {
-                    [GIST_FILENAME]: { content: JSON.stringify(data, null, 2) }
+                    [GIST_FILENAME]: { content: JSON.stringify(settings, null, 2) }
                 }
             })
         });
         if (!res.ok) throw new Error('Failed to save to gist');
         return true;
+    }
+
+    function buildSettingsPayload() {
+        const cleanBookmarks = getSerializableData(bookmarksData);
+        const dotLinks       = loadDotLinks();
+        const weatherCity    = localStorage.getItem('sp_weather_city') || null;
+        const gifList        = loadGifList();
+        const gifCurrentIdx  = gifIndex;
+        return { bookmarks: cleanBookmarks, dotLinks, weatherCity, gifList, gifCurrentIdx };
     }
 
     // ── Clean data (FIX: strip DOM nodes before serialising) ──
@@ -440,12 +568,28 @@
     async function bootstrapApp() {
         try {
             setSyncStatus('⟳ syncing…');
-            bookmarksData = await loadFromGist(authToken, gistId);
-            setSyncStatus('✓ synced', '#b8bb26');
+            const settings = await loadFromGist(authToken, gistId);
+            bookmarksData  = settings.bookmarks || DEFAULT_BOOKMARKS;
+            // Restore dot links
+            if (settings.dotLinks) {
+                saveDotLinks(settings.dotLinks);
+            }
+            // Restore gif list
+            if (settings.gifList && settings.gifList.length) {
+                saveGifList(settings.gifList);
+                gifIndex = settings.gifCurrentIdx || 0;
+                renderGif();
+            }
+            // Restore weather city
+            if (settings.weatherCity) {
+                localStorage.setItem('sp_weather_city', settings.weatherCity);
+            } else {
+                localStorage.removeItem('sp_weather_city');
+            }
+            setSyncStatus('synced', '#b8bb26');
             setTimeout(() => setSyncStatus(''), 2500);
         } catch (e) {
-            setSyncStatus('⚠ offline — using local cache', '#fabd2f');
-            // Fall back to localStorage cache
+            setSyncStatus('offline — using local cache', '#fabd2f');
             const cached = localStorage.getItem('bookmarksData_cache');
             bookmarksData = cached ? JSON.parse(cached) : DEFAULT_BOOKMARKS;
         }
@@ -482,7 +626,7 @@
             authToken = token;
             gistId    = id;
 
-            loadingEl.textContent = '✓ Connected!';
+            loadingEl.textContent = 'connected';
             await bootstrapApp();
         } catch (e) {
             errorEl.textContent = e.message || 'Connection failed.';
@@ -500,17 +644,35 @@
     // ═══════════════════════════════════════════════════
     //  CLOCK
     // ═══════════════════════════════════════════════════
+    // ── Clock: 12 / 24-hour toggle (persisted) ─────────
+    let use24h = localStorage.getItem('sp_clock_24h') === 'true';
+
     function updateDateTime() {
         const now = new Date();
         let hours = now.getHours();
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
-        const ampm  = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12;
-        const timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+        let timeString;
+        if (use24h) {
+            timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
+        } else {
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+        }
         const dateString = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         document.getElementById('current-datetime').textContent = `${dateString} ${timeString}`;
     }
+
+    const datetimeEl = document.getElementById('current-datetime');
+    datetimeEl.style.cursor = 'pointer';
+    datetimeEl.title = 'Toggle 12/24h';
+    datetimeEl.addEventListener('click', () => {
+        use24h = !use24h;
+        localStorage.setItem('sp_clock_24h', use24h);
+        updateDateTime();
+    });
+
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
@@ -788,19 +950,19 @@
         saveSettingsButton.textContent = 'Saving…';
 
         try {
-            // CRITICAL: extract only plain serialisable data — no DOM nodes
-            const cleanData = getSerializableData(bookmarksData);
+            // Build full settings payload (bookmarks + dot links + weather city)
+            const payload = buildSettingsPayload();
 
             // Persist to GitHub Gist (cross-device sync)
-            await saveToGist(authToken, gistId, cleanData);
+            await saveToGist(authToken, gistId, payload);
 
             // Update in-memory state with clean copy
-            bookmarksData = cleanData;
+            bookmarksData = payload.bookmarks;
 
             // Also cache locally for offline fallback
-            localStorage.setItem('bookmarksData_cache', JSON.stringify(cleanData));
+            localStorage.setItem('bookmarksData_cache', JSON.stringify(payload.bookmarks));
 
-            setSyncStatus('✓ saved', '#b8bb26');
+            setSyncStatus('saved', '#b8bb26');
             setTimeout(() => setSyncStatus(''), 3000);
 
             // Close modal and refresh bookmarks (redirect to home state)
@@ -808,13 +970,414 @@
             renderBookmarks();
 
         } catch (e) {
-            setSyncStatus('✗ save failed: ' + e.message, '#cc241d');
+            setSyncStatus('save failed: ' + e.message, '#cc241d');
             alert('Save failed: ' + e.message);
         } finally {
             saveSettingsButton.disabled = false;
             saveSettingsButton.textContent = 'Save Changes';
         }
     });
+
+    // ═══════════════════════════════════════════════════
+    //  WEATHER
+    // ═══════════════════════════════════════════════════
+    const weatherBar    = document.getElementById('weather-bar');
+
+    let weatherOpen     = false;
+    let weatherCache    = null;
+
+    function wmoCondition(code) {
+        if (code === 0)  return 'Clear';
+        if (code <= 2)   return 'P.Cloudy';
+        if (code === 3)  return 'Cloudy';
+        if (code <= 49)  return 'Foggy';
+        if (code <= 59)  return 'Drizzle';
+        if (code <= 69)  return 'Rain';
+        if (code <= 79)  return 'Snow';
+        if (code <= 84)  return 'Rain';
+        if (code <= 94)  return 'Storm';
+        return 'Thunder';
+    }
+
+    function wmoLabel(code) {
+        if (code === 0)  return 'Clear';
+        if (code <= 2)   return 'Partly Cloudy';
+        if (code === 3)  return 'Overcast';
+        if (code <= 49)  return 'Foggy';
+        if (code <= 59)  return 'Drizzle';
+        if (code <= 69)  return 'Rain';
+        if (code <= 79)  return 'Snow';
+        if (code <= 84)  return 'Showers';
+        if (code <= 94)  return 'Thunderstorm';
+        return 'Storm';
+    }
+
+    async function fetchWeatherByCoords(lat, lon, label) {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+            `&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code` +
+            `&daily=precipitation_probability_max&timezone=auto&forecast_days=1`;
+        const r = await fetch(url);
+        if (!r.ok) throw new Error('weather fetch failed');
+        const d = await r.json();
+        const c = d.current;
+        const desc  = wmoLabel(c.weather_code);
+        const temp  = Math.round(c.temperature_2m);
+        const feels = Math.round(c.apparent_temperature);
+        const humid = c.relative_humidity_2m;
+        const rain  = d.daily.precipitation_probability_max[0] ?? '—';
+        weatherCache = {
+            bar:      `${label} · ${temp}°C · ${desc}`,
+            humidity:  `${humid}%`,
+            rain:      `${rain}%`,
+            feelsLike: `${feels}°C`
+        };
+        renderWeather();
+    }
+
+    // Reverse-geocode coords → "Suburb, City" using Nominatim
+    async function reverseGeocode(lat, lon) {
+        try {
+            const r = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=14&addressdetails=1`,
+                { headers: { 'Accept-Language': 'en' } }
+            );
+            if (!r.ok) return null;
+            const d = await r.json();
+            const a = d.address || {};
+            // Pick the most specific neighbourhood-level name available
+            const sub  = a.suburb || a.neighbourhood || a.quarter || a.village || a.town || '';
+            const city = a.city || a.county || a.state_district || a.state || '';
+            if (sub && city) return `${sub}, ${city}`;
+            if (city)        return city;
+        } catch {}
+        return null;
+    }
+
+    async function fetchWeatherByCity(city) {
+        const geo = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+        );
+        if (!geo.ok) throw new Error('geocoding failed');
+        const gd = await geo.json();
+        if (!gd.results || !gd.results.length) throw new Error(`"${city}" not found`);
+        const { latitude, longitude, name, admin1 } = gd.results[0];
+        // Use "Name, Region" — no country code
+        const label = admin1 && admin1 !== name ? `${name}, ${admin1}` : name;
+        await fetchWeatherByCoords(latitude, longitude, label);
+    }
+
+    function renderWeather() {
+        if (!weatherCache) return;
+        weatherBar.textContent = weatherOpen
+            ? `hum: ${weatherCache.humidity}  rain: ${weatherCache.rain}  feels: ${weatherCache.feelsLike}`
+            : weatherCache.bar;
+    }
+
+    weatherBar.addEventListener('click', () => {
+        if (!weatherCache) return;
+        weatherOpen = !weatherOpen;
+        renderWeather();
+    });
+
+    async function initWeather() {
+        const savedCity = localStorage.getItem('sp_weather_city');
+        if (savedCity) {
+            weatherBar.textContent = 'loading…';
+            try { await fetchWeatherByCity(savedCity); }
+            catch { weatherBar.textContent = 'weather unavailable'; }
+        } else {
+            if (!navigator.geolocation) return;
+            weatherBar.textContent = 'locating…';
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    try {
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        const label = await reverseGeocode(lat, lon) || 'Here';
+                        await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
+                    } catch { weatherBar.textContent = 'weather unavailable'; }
+                },
+                () => { weatherBar.textContent = ''; }
+            );
+        }
+        setInterval(() => initWeather(), 15 * 60 * 1000);
+    }
+
+    // ── Location settings wiring ──────────────────────
+    const locationInput   = document.getElementById('location-input');
+    const locationAutoBtn = document.getElementById('location-auto-btn');
+    const locationSetBtn  = document.getElementById('location-set-btn');
+    const locationStatus  = document.getElementById('location-status');
+
+    const _savedCity = localStorage.getItem('sp_weather_city');
+    if (_savedCity) locationInput.value = _savedCity;
+
+    locationSetBtn.addEventListener('click', async () => {
+        const city = locationInput.value.trim();
+        if (!city) { locationStatus.textContent = 'Enter a city name.'; return; }
+        locationStatus.textContent = 'searching…';
+        try {
+            await fetchWeatherByCity(city);
+            localStorage.setItem('sp_weather_city', city);
+            locationStatus.textContent = `set to ${city}`;
+        } catch (e) {
+            locationStatus.textContent = `error: ${e.message}`;
+        }
+    });
+
+    locationAutoBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+            locationStatus.textContent = 'geolocation not supported';
+            return;
+        }
+        localStorage.removeItem('sp_weather_city');
+        locationInput.value = '';
+        locationStatus.textContent = 'locating…';
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                try {
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        const label = await reverseGeocode(lat, lon) || 'Here';
+                        await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
+                        locationStatus.textContent = `using ${label}`;
+                    } catch { locationStatus.textContent = 'weather unavailable'; }
+            },
+            () => { locationStatus.textContent = 'location denied'; }
+        );
+    });
+
+    // ═══════════════════════════════════════════════════
+    //  GIF SWITCHER
+    // ═══════════════════════════════════════════════════
+    const GIF_DEFAULT = ['cat.gif'];
+    let gifIndex = 0;
+
+    function loadGifList() {
+        try {
+            const s = localStorage.getItem('sp_gif_list');
+            const list = s ? JSON.parse(s) : null;
+            return (Array.isArray(list) && list.length) ? list : [...GIF_DEFAULT];
+        } catch { return [...GIF_DEFAULT]; }
+    }
+
+    function saveGifList(list) {
+        localStorage.setItem('sp_gif_list', JSON.stringify(list));
+    }
+
+    function renderGif() {
+        const list  = loadGifList();
+        const total = list.length;
+        gifIndex    = Math.max(0, Math.min(gifIndex, total - 1));
+
+        const img        = document.getElementById('gif-img');
+        const dotsWrap   = document.getElementById('gif-page-dots');
+        if (!img) return;
+
+        img.src = list[gifIndex];
+
+        // Rebuild dots — same pattern as bookmark page dots
+        dotsWrap.innerHTML = '';
+        if (total > 1) {
+            dotsWrap.style.display = 'flex';
+            list.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.classList.add('page-dot');
+                if (i === gifIndex) dot.classList.add('active');
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    gifIndex = (i === gifIndex) ? (i + 1) % total : i;
+                    renderGif();
+                });
+                dotsWrap.appendChild(dot);
+            });
+            // Clicking the dots bar (not a dot) also advances
+            dotsWrap.onclick = (e) => {
+                if (e.target === dotsWrap) {
+                    gifIndex = (gifIndex + 1) % total;
+                    renderGif();
+                }
+            };
+        } else {
+            dotsWrap.style.display = 'none';
+        }
+    }
+
+    function renderGifSettings() {
+        const list      = loadGifList();
+        const container = document.getElementById('gif-settings-list');
+        if (!container) return;
+        container.innerHTML = '';
+
+        list.forEach((url, i) => {
+            const row = document.createElement('div');
+            row.className = 'gif-settings-row';
+
+            const thumb = document.createElement('img');
+            thumb.className = 'gif-thumb';
+            thumb.src = url;
+
+            const label = document.createElement('span');
+            label.className = 'gif-row-url';
+            label.textContent = url.startsWith('data:') ? '[local file]' : url;
+            label.title = url.startsWith('data:') ? '' : url;
+
+            const useBtn = document.createElement('button');
+            useBtn.className = 'modal-button loc-btn';
+            useBtn.textContent = i === gifIndex ? 'active' : 'use';
+            useBtn.style.minWidth = '46px';
+            useBtn.addEventListener('click', () => {
+                gifIndex = i;
+                renderGif();
+                renderGifSettings();
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'modal-button loc-btn';
+            delBtn.textContent = 'x';
+            delBtn.style.background = '#3c3836';
+            delBtn.addEventListener('click', () => {
+                if (list.length === 1) {
+                    document.getElementById('gif-status').textContent = 'need at least one gif';
+                    return;
+                }
+                list.splice(i, 1);
+                if (gifIndex >= list.length) gifIndex = list.length - 1;
+                saveGifList(list);
+                renderGif();
+                renderGifSettings();
+            });
+
+            row.appendChild(thumb);
+            row.appendChild(label);
+            row.appendChild(useBtn);
+            row.appendChild(delBtn);
+            container.appendChild(row);
+        });
+    }
+
+    // Add gif via URL or file
+    document.getElementById('gif-add-btn').addEventListener('click', () => {
+        const input  = document.getElementById('gif-url-input');
+        const status = document.getElementById('gif-status');
+        const url    = input.value.trim();
+        if (!url) { status.textContent = 'paste a url first'; return; }
+        const list = loadGifList();
+        list.push(url);
+        saveGifList(list);
+        gifIndex = list.length - 1;
+        input.value = '';
+        status.textContent = 'added!';
+        setTimeout(() => { status.textContent = ''; }, 2000);
+        renderGif();
+        renderGifSettings();
+    });
+
+    // Also allow pasting a file via drag-and-drop onto the gif
+    const gifWrap = document.getElementById('gif-wrap');
+    gifWrap.addEventListener('dragover', e => { e.preventDefault(); gifWrap.style.opacity = '0.7'; });
+    gifWrap.addEventListener('dragleave', () => { gifWrap.style.opacity = ''; });
+    gifWrap.addEventListener('drop', e => {
+        e.preventDefault();
+        gifWrap.style.opacity = '';
+        const file = e.dataTransfer.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const list = loadGifList();
+            list.push(ev.target.result);
+            saveGifList(list);
+            gifIndex = list.length - 1;
+            renderGif();
+            renderGifSettings();
+        };
+        reader.readAsDataURL(file);
+    });
+
+    renderGif();
+
+    // ═══════════════════════════════════════════════════
+    //  DOT LINKS
+    // ═══════════════════════════════════════════════════
+    const DOT_DEFAULTS = [
+        { label: 'claude',  url: 'https://claude.ai/new' },
+        { label: 'gemini',  url: 'https://gemini.google.com/app' },
+        { label: 'chatgpt', url: 'https://chatgpt.com' },
+    ];
+
+    function loadDotLinks() {
+        try {
+            const saved = localStorage.getItem('sp_dot_links');
+            return saved ? JSON.parse(saved) : DOT_DEFAULTS.map(d => ({...d}));
+        } catch { return DOT_DEFAULTS.map(d => ({...d})); }
+    }
+
+    function saveDotLinks(links) {
+        localStorage.setItem('sp_dot_links', JSON.stringify(links));
+    }
+
+    function renderDotButtons() {
+        const links = loadDotLinks();
+        links.forEach((link, i) => {
+            const el = document.getElementById(`dot-btn-${i + 1}`);
+            if (!el) return;
+            el.href = link.url || '#';
+            el.setAttribute('data-tooltip', link.label || '');
+        });
+    }
+
+    function renderDotSettings() {
+        const links = loadDotLinks();
+        const container = document.getElementById('dot-links-settings');
+        if (!container) return;
+        container.innerHTML = '';
+        links.forEach((link, i) => {
+            const row = document.createElement('div');
+            row.className = 'location-row';
+            row.style.marginBottom = '8px';
+
+            const labelInput = document.createElement('input');
+            labelInput.type = 'text';
+            labelInput.value = link.label;
+            labelInput.placeholder = 'label';
+            labelInput.style.cssText = 'flex:0 0 90px;min-width:0;padding:7px 8px;border:1px solid #83a598;border-radius:5px;background:#3c3836;color:#ebdbb2;font-family:"Fira Code",monospace;font-size:0.82em;box-sizing:border-box;';
+
+            const urlInput = document.createElement('input');
+            urlInput.type = 'url';
+            urlInput.value = link.url;
+            urlInput.placeholder = 'https://…';
+            urlInput.style.cssText = 'flex:1;min-width:0;padding:7px 8px;border:1px solid #504945;border-radius:5px;background:#3c3836;color:#ebdbb2;font-family:"Fira Code",monospace;font-size:0.82em;box-sizing:border-box;';
+
+            const saveBtn = document.createElement('button');
+            saveBtn.textContent = 'Set';
+            saveBtn.className = 'modal-button loc-btn';
+
+            saveBtn.addEventListener('click', () => {
+                links[i].label = labelInput.value.trim();
+                links[i].url   = urlInput.value.trim();
+                saveDotLinks(links);
+                renderDotButtons();
+            });
+
+            row.appendChild(labelInput);
+            row.appendChild(urlInput);
+            row.appendChild(saveBtn);
+            container.appendChild(row);
+        });
+    }
+
+    // Hook into modal open to render dot + gif settings
+    const _origModalOpen = document.querySelector('.top-left-link-button');
+    if (_origModalOpen) {
+        _origModalOpen.addEventListener('click', () => {
+            renderDotSettings();
+            renderGifSettings();
+        });
+    }
+
+    renderDotButtons();
+
+    initWeather();
 
     // ═══════════════════════════════════════════════════
     //  BOOTSTRAP
