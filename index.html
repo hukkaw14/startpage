@@ -1,256 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>~/startpage</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="x-icon" href="favicon.ico">
-    <style>
-        /* ── Token Gate Overlay ── */
-        #token-gate {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-        #token-gate.show { display: flex; }
-        #token-box {
-            background: #282828;
-            border: 1px solid #83a598;
-            border-radius: 10px;
-            padding: 35px 40px;
-            max-width: 480px;
-            width: 90%;
-            color: #ebdbb2;
-            font-family: "Fira Code", monospace;
-        }
-        #token-box h2 {
-            color: #fe8019;
-            margin: 0 0 10px 0;
-            text-align: left;
-            font-size: 1.1em;
-        }
-        #token-box p {
-            font-size: 0.82em;
-            color: #a89984;
-            margin: 0 0 18px 0;
-            line-height: 1.6;
-        }
-        #token-box p a { color: #83a598; }
-        #token-input {
-            width: 100%;
-            padding: 10px;
-            background: #3c3836;
-            border: 1px solid #83a598;
-            border-radius: 5px;
-            color: #ebdbb2;
-            font-family: "Fira Code", monospace;
-            font-size: 0.9em;
-            box-sizing: border-box;
-            margin-bottom: 14px;
-        }
-        #token-submit {
-            background: #fe8019;
-            color: #282828;
-            border: none;
-            padding: 10px 22px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: "Fira Code", monospace;
-            font-size: 0.95em;
-            width: 100%;
-        }
-        #token-submit:hover { background: #d65d0e; }
-        #token-error {
-            color: #cc241d;
-            font-size: 0.82em;
-            margin-top: 10px;
-            min-height: 18px;
-        }
-        #token-loading {
-            color: #83a598;
-            font-size: 0.82em;
-            margin-top: 10px;
-        }
-        /* ── Sync indicator ── */
-        #sync-indicator {
-            position: fixed;
-            bottom: 14px;
-            right: 18px;
-            font-family: "Fira Code", monospace;
-            font-size: 0.75em;
-            color: #a89984;
-            z-index: 999;
-            pointer-events: none;
-        }
-
-        /* ── Weather bar ── */
-        /* ── Weather bar ── */
-        #weather-bar {
-            font-size: 0.72em;
-            color: #a89984;
-            margin-top: 10px;
-            cursor: pointer;
-            letter-spacing: 0.03em;
-            transition: color 0.2s ease;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            display: block;
-        }
-        #weather-bar:hover { color: #ebdbb2; }
-        #weather-bar:empty { display: none; }
-
-        /* ── Location settings block ── */
-        .location-settings-block {
-            background: rgba(60,56,54,0.5);
-            border: 1px solid rgba(235,219,178,0.12);
-            border-radius: 7px;
-            padding: 12px 14px 10px;
-            margin-bottom: 20px;
-        }
-        .location-settings-label {
-            font-size: 0.75em;
-            color: #a89984;
-            letter-spacing: 0.06em;
-            margin-bottom: 8px;
-        }
-        .location-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .location-row #location-input {
-            flex: 1;
-            min-width: 120px;
-            padding: 8px;
-            border: 1px solid #83a598;
-            border-radius: 5px;
-            background: #3c3836;
-            color: #ebdbb2;
-            font-family: "Fira Code", monospace;
-            font-size: 0.88em;
-            box-sizing: border-box;
-        }
-        .loc-btn {
-            padding: 8px 12px !important;
-            font-size: 0.82em !important;
-            white-space: nowrap;
-        }
-        #location-status {
-            font-size: 0.75em;
-            color: #83a598;
-            margin-top: 6px;
-            min-height: 16px;
-        }
-
-        /* ── Gif thumbnail grid ── */
-        .gif-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .gif-card {
-            position: relative;
-            width: 88px;
-            cursor: pointer;
-            border-radius: 6px;
-            overflow: visible;
-            flex-shrink: 0;
-        }
-        .gif-card-inner {
-            border-radius: 6px;
-            overflow: hidden;
-            border: 2px solid transparent;
-            transition: border-color 0.15s ease, transform 0.15s ease;
-            background: #1d2021;
-        }
-        .gif-card.active .gif-card-inner {
-            border-color: #fe8019;
-            transform: scale(1.05);
-        }
-        .gif-card:not(.active):hover .gif-card-inner { border-color: #83a598; }
-        .gif-card img {
-            width: 88px;
-            height: 64px;
-            object-fit: cover;
-            display: block;
-        }
-        .gif-card-del {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            width: 17px;
-            height: 17px;
-            border-radius: 50%;
-            background: #3c3836;
-            border: 1px solid #504945;
-            color: #ebdbb2;
-            font-size: 11px;
-            line-height: 15px;
-            text-align: center;
-            cursor: pointer;
-            display: none;
-            padding: 0;
-            z-index: 10;
-        }
-        .gif-card:hover .gif-card-del { display: block; }
-        .gif-card-del:hover { background: #cc241d; border-color: #cc241d; }
-
-        /* ── Editable gif label ── */
-        .gif-card-label-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            padding: 4px 2px 2px;
-            min-height: 20px;
-        }
-        .gif-card-label-text {
-            font-size: 0.66em;
-            color: #a89984;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 68px;
-            cursor: text;
-        }
-        .gif-card.active .gif-card-label-text { color: #fe8019; }
-        .gif-card-pencil {
-            font-size: 0.68em;
-            color: #504945;
-            cursor: pointer;
-            display: none;
-            flex-shrink: 0;
-            line-height: 1;
-            transition: color 0.15s;
-        }
-        .gif-card:hover .gif-card-pencil { display: inline; }
-        .gif-card-pencil:hover { color: #83a598; }
-        .gif-card-label-input {
-            width: 80px;
-            background: #3c3836;
-            border: 1px solid #83a598;
-            border-radius: 3px;
-            color: #ebdbb2;
-            font-family: "Fira Code", monospace;
-            font-size: 0.65em;
-            padding: 2px 4px;
-            outline: none;
-            box-sizing: border-box;
-        }
-    </style>
 </head>
-
 <body>
 
-    <!-- ── Token Gate ── -->
+    <!-- Token Gate -->
     <div id="token-gate" class="show">
         <div id="token-box">
             <h2>> enter github token_</h2>
@@ -268,8 +27,28 @@
         </div>
     </div>
 
-    <!-- ── Sync Indicator ── -->
+    <!-- Sync Indicator -->
     <div id="sync-indicator"></div>
+
+    <!-- CLI Overlay -->
+    <div id="cli-overlay">
+        <div class="cli-header">
+            <span class="cli-header-title">~/startpage — <span>terminal</span></span>
+            <button id="cli-close" class="cli-header-close">[esc] close</button>
+        </div>
+        <div id="cli-output"></div>
+        <div class="cli-input-row">
+            <span class="cli-prompt">~/startpage $&nbsp;</span>
+            <div id="cli-input-wrap" class="cli-input-wrap">
+                <span id="cli-typed"></span><span class="cli-blink blinking">_</span>
+                <input id="cli-input" type="text"
+                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            </div>
+        </div>
+    </div>
+
+    <!-- CLI Dot (bottom-left) -->
+    <button id="cli-dot"></button>
 
     <div class="container">
         <div class="left-container">
@@ -291,7 +70,9 @@
                 <span id="prompt-prefix">> cd ~/</span><span id="search-text"></span><span id="blinker" class="blinking">_</span>
             </div>
             <div class="mobile-search-wrap">
-                <input class="mobile-search-input" id="mobile-search" type="search" placeholder="search or enter url…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+                <input class="mobile-search-input" id="mobile-search" type="search"
+                    placeholder="search or enter url…"
+                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             </div>
             <div class="bookmarks" id="bookmarks-container"></div>
         </div>
@@ -303,7 +84,7 @@
             <span class="close-button">&times;</span>
             <h2>Settings</h2>
 
-            <!-- ── GIFs ── -->
+            <!-- GIFs -->
             <div class="location-settings-block" style="margin-bottom:14px;">
                 <div class="location-settings-label">gifs</div>
                 <div id="gif-settings-list"></div>
@@ -321,13 +102,13 @@
                 <div id="gif-status" style="font-size:0.75em;color:#83a598;margin-top:5px;min-height:14px;"></div>
             </div>
 
-            <!-- ── Dot links ── -->
+            <!-- Dot links -->
             <div class="location-settings-block" style="margin-bottom:14px;">
                 <div class="location-settings-label">top links</div>
                 <div id="dot-links-settings"></div>
             </div>
 
-            <!-- ── Location ── -->
+            <!-- Location -->
             <div class="location-settings-block">
                 <div class="location-settings-label">weather location</div>
                 <div class="location-row">
@@ -348,24 +129,22 @@
     // ═══════════════════════════════════════════════════
     //  DATABASE SCHEMA (stored as JSON in a GitHub Gist)
     //  File: startpage-bookmarks.json
-    //  Schema:
-    //  [
-    //    {
-    //      "title": "category name",
-    //      "links": [
-    //        { "text": "link label", "url": "https://...", "starred": false }
-    //      ]
-    //    }
-    //  ]
+    //  {
+    //    bookmarks:   [ { title, links: [ { text, url, starred } ] } ],
+    //    dotLinks:    [ { label, url } ],
+    //    weatherCity: string | null,
+    //    gifList:     [ { url, name } ],
+    //    gifCurrentIdx: number
+    //  }
     // ═══════════════════════════════════════════════════
 
     // ── Constants ──────────────────────────────────────
-    const STORAGE_KEY_TOKEN      = 'sp_token';
-    const STORAGE_KEY_EXPIRY     = 'sp_token_expiry';
-    const STORAGE_KEY_GIST_ID    = 'sp_gist_id';
-    const GIST_FILENAME          = 'startpage-bookmarks.json';
-    const TOKEN_TTL_MS           = 30 * 24 * 60 * 60 * 1000; // 30 days
-    const GIST_API               = 'https://api.github.com';
+    const STORAGE_KEY_TOKEN   = 'sp_token';
+    const STORAGE_KEY_EXPIRY  = 'sp_token_expiry';
+    const STORAGE_KEY_GIST_ID = 'sp_gist_id';
+    const GIST_FILENAME       = 'startpage-bookmarks.json';
+    const TOKEN_TTL_MS        = 30 * 24 * 60 * 60 * 1000;
+    const GIST_API            = 'https://api.github.com';
 
     // ── Token helpers ──────────────────────────────────
     function getStoredToken() {
@@ -391,15 +170,14 @@
 
     function gistHeaders(token) {
         return {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
+            'Authorization':  `token ${token}`,
+            'Accept':         'application/vnd.github.v3+json',
+            'Content-Type':   'application/json'
         };
     }
 
     // ── Gist CRUD ──────────────────────────────────────
     async function findOrCreateGist(token) {
-        // Search existing gists for our file
         let page = 1;
         while (true) {
             const res = await fetch(`${GIST_API}/gists?per_page=100&page=${page}`, {
@@ -413,16 +191,13 @@
             if (gists.length < 100) break;
             page++;
         }
-        // Not found — create a new private gist with default data
         const res = await fetch(`${GIST_API}/gists`, {
-            method: 'POST',
+            method:  'POST',
             headers: gistHeaders(token),
-            body: JSON.stringify({
+            body:    JSON.stringify({
                 description: 'Startpage Bookmarks',
-                public: false,
-                files: {
-                    [GIST_FILENAME]: { content: JSON.stringify(DEFAULT_BOOKMARKS, null, 2) }
-                }
+                public:      false,
+                files:       { [GIST_FILENAME]: { content: JSON.stringify(DEFAULT_BOOKMARKS, null, 2) } }
             })
         });
         if (!res.ok) throw new Error('Failed to create gist');
@@ -433,44 +208,39 @@
     async function loadFromGist(token, gistId) {
         const res = await fetch(`${GIST_API}/gists/${gistId}`, {
             headers: gistHeaders(token),
-            cache: 'no-store'
+            cache:   'no-store'
         });
         if (!res.ok) throw new Error('Failed to load gist');
-        const gist = await res.json();
+        const gist    = await res.json();
         const content = gist.files[GIST_FILENAME]?.content;
         if (!content) throw new Error('Gist file missing');
         const parsed = JSON.parse(content);
-        // Support old format (plain array) and new format (object with bookmarks key)
+        // Support old format (plain array)
         if (Array.isArray(parsed)) return { bookmarks: parsed, dotLinks: null, weatherCity: null };
         return parsed;
     }
 
     async function saveToGist(token, gistId, settings) {
         const res = await fetch(`${GIST_API}/gists/${gistId}`, {
-            method: 'PATCH',
+            method:  'PATCH',
             headers: gistHeaders(token),
-            body: JSON.stringify({
-                files: {
-                    [GIST_FILENAME]: { content: JSON.stringify(settings, null, 2) }
-                }
-            })
+            body:    JSON.stringify({ files: { [GIST_FILENAME]: { content: JSON.stringify(settings, null, 2) } } })
         });
         if (!res.ok) throw new Error('Failed to save to gist');
         return true;
     }
 
     function buildSettingsPayload() {
-        const cleanBookmarks = getSerializableData(bookmarksData);
-        const dotLinks       = loadDotLinks();
-        const weatherCity    = localStorage.getItem('sp_weather_city') || null;
-        const gifList        = loadGifList();
-        const gifCurrentIdx  = gifIndex;
-        return { bookmarks: cleanBookmarks, dotLinks, weatherCity, gifList, gifCurrentIdx };
+        return {
+            bookmarks:     getSerializableData(bookmarksData),
+            dotLinks:      loadDotLinks(),
+            weatherCity:   localStorage.getItem('sp_weather_city') || null,
+            gifList:       loadGifList(),
+            gifCurrentIdx: gifIndex
+        };
     }
 
-    // ── Clean data (FIX: strip DOM nodes before serialising) ──
-    // The DOMException: HTMLLIElement could not be cloned was caused by
-    // allOriginalLinks (DOM elements) being attached to bookmarksData objects.
+    // Strip DOM nodes before serialising (prevents DOMException clone bug)
     function getSerializableData(data) {
         return data.map(cat => ({
             title: cat.title,
@@ -496,108 +266,108 @@
         {
             title: 'learn',
             links: [
-                { text: 'tracker',    url: 'https://najmossalahin.github.io/Task_Tracker/',         starred: false },
-                { text: 'statistics', url: 'https://www.coursera.org/learn/stanford-statistics/home/', starred: false },
-                { text: 'python',     url: 'https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU/', starred: false },
+                { text: 'tracker',    url: 'https://najmossalahin.github.io/Task_Tracker/',                                          starred: false },
+                { text: 'statistics', url: 'https://www.coursera.org/learn/stanford-statistics/home/',                               starred: false },
+                { text: 'python',     url: 'https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU/',             starred: false },
                 { text: 'codewars',   url: 'https://www.codewars.com/kata/search/python?q=&r%5B%5D=-8&beta=false&order_by=sort_date%20desc/', starred: false },
-                { text: 'beecrowd',   url: 'https://judge.beecrowd.com/',                           starred: false },
-                { text: 'renshuu',    url: 'https://www.renshuu.org/me',                            starred: false },
-                { text: 'language',   url: 'https://forvo.com/',                                    starred: false },
-                { text: 'kana lrn',   url: 'https://najmossalahin.github.io/Ai_Kana_Learning_Tool/', starred: false },
-                { text: 'kana quiz',  url: 'https://gohoneko.neocities.org/learn/kana',             starred: false },
-                { text: 'kanji lrn',  url: 'https://najmossalahin.github.io/Kanji_Tool/',           starred: false },
-                { text: 'kanji db',   url: 'https://thekanjimap.com/',                              starred: false },
+                { text: 'beecrowd',   url: 'https://judge.beecrowd.com/',                                                           starred: false },
+                { text: 'renshuu',    url: 'https://www.renshuu.org/me',                                                             starred: false },
+                { text: 'language',   url: 'https://forvo.com/',                                                                     starred: false },
+                { text: 'kana lrn',   url: 'https://najmossalahin.github.io/Ai_Kana_Learning_Tool/',                                 starred: false },
+                { text: 'kana quiz',  url: 'https://gohoneko.neocities.org/learn/kana',                                             starred: false },
+                { text: 'kanji lrn',  url: 'https://najmossalahin.github.io/Kanji_Tool/',                                           starred: false },
+                { text: 'kanji db',   url: 'https://thekanjimap.com/',                                                              starred: false },
             ]
         },
         {
             title: 'dev',
             links: [
-                { text: 'devdocs',  url: 'https://devdocs.io/',                                             starred: false },
-                { text: 'github',   url: 'https://github.com/NajmosSalahin/',                               starred: false },
-                { text: 'devtools', url: 'https://appdevtools.com/',                                        starred: false },
-                { text: 'rentry',   url: 'https://rentry.org/',                                             starred: false },
-                { text: 'gist git', url: 'https://gist.github.com/',                                       starred: false },
-                { text: 'linkedin', url: 'https://www.linkedin.com/in/md-najmos-salahin-185106371/',        starred: false },
+                { text: 'devdocs',  url: 'https://devdocs.io/',                                                                      starred: false },
+                { text: 'github',   url: 'https://github.com/NajmosSalahin/',                                                        starred: false },
+                { text: 'devtools', url: 'https://appdevtools.com/',                                                                 starred: false },
+                { text: 'rentry',   url: 'https://rentry.org/',                                                                      starred: false },
+                { text: 'gist git', url: 'https://gist.github.com/',                                                                starred: false },
+                { text: 'linkedin', url: 'https://www.linkedin.com/in/md-najmos-salahin-185106371/',                                 starred: false },
             ]
         },
         {
             title: 'database',
             links: [
-                { text: 'letterboxd', url: 'https://letterboxd.com/ChouCho_P/',                            starred: false },
-                { text: 'storygraph', url: 'https://app.thestorygraph.com/profile/choucho_p/',              starred: false },
-                { text: 'lastfm',     url: 'https://www.last.fm/user/NajAdib/',                            starred: false },
-                { text: 'mangalist',  url: 'https://myanimelist.net/mangalist/Naju_adib?/',                 starred: false },
-                { text: 'rawg',       url: 'https://rawg.io/@choucho_p/games',                             starred: false },
-                { text: 'recipe',     url: 'https://www.myrecipes.com/',                                   starred: false },
-                { text: 'dog die',    url: 'https://www.doesthedogdie.com/',                               starred: false },
+                { text: 'letterboxd', url: 'https://letterboxd.com/ChouCho_P/',                                                     starred: false },
+                { text: 'storygraph', url: 'https://app.thestorygraph.com/profile/choucho_p/',                                       starred: false },
+                { text: 'lastfm',     url: 'https://www.last.fm/user/NajAdib/',                                                      starred: false },
+                { text: 'mangalist',  url: 'https://myanimelist.net/mangalist/Naju_adib?/',                                          starred: false },
+                { text: 'rawg',       url: 'https://rawg.io/@choucho_p/games',                                                      starred: false },
+                { text: 'recipe',     url: 'https://www.myrecipes.com/',                                                             starred: false },
+                { text: 'dog die',    url: 'https://www.doesthedogdie.com/',                                                         starred: false },
             ]
         },
         {
             title: 'play',
             links: [
-                { text: 'monkeytype', url: 'https://monkeytype.com/',               starred: false },
-                { text: 'lichess',    url: 'https://lichess.org/',                  starred: false },
-                { text: 'bongo cat',  url: 'https://bongo.cat/',                    starred: false },
-                { text: 'mynoise',    url: 'https://mynoise.net/',                  starred: false },
-                { text: 'cat noise',  url: 'https://purrli.com/',                   starred: false },
-                { text: 'neal',       url: 'https://neal.fun/',                     starred: false },
-                { text: 'solar',      url: 'https://joshworth.com/dev/pixelspace/pixelspace_solarsystem.html', starred: false },
-                { text: 'sleepytime', url: 'https://sleepopolis.com/calculators/sleep/', starred: false },
+                { text: 'monkeytype', url: 'https://monkeytype.com/',                                                               starred: false },
+                { text: 'lichess',    url: 'https://lichess.org/',                                                                   starred: false },
+                { text: 'bongo cat',  url: 'https://bongo.cat/',                                                                     starred: false },
+                { text: 'mynoise',    url: 'https://mynoise.net/',                                                                   starred: false },
+                { text: 'cat noise',  url: 'https://purrli.com/',                                                                    starred: false },
+                { text: 'neal',       url: 'https://neal.fun/',                                                                      starred: false },
+                { text: 'solar',      url: 'https://joshworth.com/dev/pixelspace/pixelspace_solarsystem.html',                       starred: false },
+                { text: 'sleepytime', url: 'https://sleepopolis.com/calculators/sleep/',                                             starred: false },
             ]
         },
         {
             title: 'Unusual',
             links: [
-                { text: 'fmhy',      url: 'https://fmhy.net/',              starred: false },
-                { text: 'the index', url: 'https://theindex.moe/',          starred: false },
-                { text: 'nyaa',      url: 'https://nyaa.si/',               starred: false },
-                { text: '1337x',     url: 'https://1337x.to/home/',         starred: false },
-                { text: 'rawdl',     url: 'https://dl-raw.ac/',             starred: false },
-                { text: 'dl server', url: 'https://server.elscione.com/',   starred: false },
-                { text: 'z-lib',     url: 'https://z-lib.gd/',              starred: false },
-                { text: 'roms',      url: 'https://r-roms.github.io/',      starred: false },
+                { text: 'fmhy',      url: 'https://fmhy.net/',                                                                       starred: false },
+                { text: 'the index', url: 'https://theindex.moe/',                                                                   starred: false },
+                { text: 'nyaa',      url: 'https://nyaa.si/',                                                                        starred: false },
+                { text: '1337x',     url: 'https://1337x.to/home/',                                                                  starred: false },
+                { text: 'rawdl',     url: 'https://dl-raw.ac/',                                                                      starred: false },
+                { text: 'dl server', url: 'https://server.elscione.com/',                                                            starred: false },
+                { text: 'z-lib',     url: 'https://z-lib.gd/',                                                                       starred: false },
+                { text: 'roms',      url: 'https://r-roms.github.io/',                                                               starred: false },
             ]
         },
         {
             title: 'social',
             links: [
-                { text: 'reddit',      url: 'https://reddit.com/',                  starred: false },
-                { text: '4chan',        url: 'https://4chan.org/',                   starred: false },
-                { text: 'youtube',     url: 'https://youtube.com/',                 starred: false },
-                { text: 'animepahe',   url: 'https://animepahe.ru',                 starred: false },
-                { text: 'cubari',      url: 'https://proxy.cubari.moe/#/',          starred: false },
-                { text: 'x',           url: 'https://x.com/',                       starred: false },
-                { text: 'telegram',    url: 'http://web.telegram.org/',             starred: false },
-                { text: 'discord',     url: 'https://discord.com/channels/981539676550750228/1237586485234892841/', starred: false },
-                { text: 'radio',       url: 'https://radio.garden/browse',          starred: false },
-                { text: 'footybite',   url: 'https://www.footybite.to/',            starred: false },
-                { text: 'music',       url: 'https://dab.yeet.su/',                 starred: false },
-                { text: 'animethemes', url: 'https://animethemes.moe/',             starred: false },
-                { text: 'bdix',        url: 'https://bdixtv24.com/live-tv/',        starred: false },
+                { text: 'reddit',      url: 'https://reddit.com/',                                                                   starred: false },
+                { text: '4chan',        url: 'https://4chan.org/',                                                                   starred: false },
+                { text: 'youtube',     url: 'https://youtube.com/',                                                                  starred: false },
+                { text: 'animepahe',   url: 'https://animepahe.ru',                                                                  starred: false },
+                { text: 'cubari',      url: 'https://proxy.cubari.moe/#/',                                                           starred: false },
+                { text: 'x',           url: 'https://x.com/',                                                                        starred: false },
+                { text: 'telegram',    url: 'http://web.telegram.org/',                                                              starred: false },
+                { text: 'discord',     url: 'https://discord.com/channels/981539676550750228/1237586485234892841/',                  starred: false },
+                { text: 'radio',       url: 'https://radio.garden/browse',                                                           starred: false },
+                { text: 'footybite',   url: 'https://www.footybite.to/',                                                             starred: false },
+                { text: 'music',       url: 'https://dab.yeet.su/',                                                                  starred: false },
+                { text: 'animethemes', url: 'https://animethemes.moe/',                                                              starred: false },
+                { text: 'bdix',        url: 'https://bdixtv24.com/live-tv/',                                                         starred: false },
             ]
         },
         {
             title: 'tools',
             links: [
-                { text: 'excalidraw', url: 'https://excalidraw.com/',               starred: false },
-                { text: 'diagram',    url: 'https://app.diagrams.net/',             starred: false },
-                { text: 'desmos',     url: 'https://www.desmos.com/',               starred: false },
-                { text: 'gamma',      url: 'https://gamma.app/create',              starred: false },
-                { text: 'colab',      url: 'https://colab.research.google.com/',   starred: false },
-                { text: 'omni calc',  url: 'https://www.omnicalculator.com/',       starred: false },
+                { text: 'excalidraw', url: 'https://excalidraw.com/',                                                                starred: false },
+                { text: 'diagram',    url: 'https://app.diagrams.net/',                                                              starred: false },
+                { text: 'desmos',     url: 'https://www.desmos.com/',                                                                starred: false },
+                { text: 'gamma',      url: 'https://gamma.app/create',                                                               starred: false },
+                { text: 'colab',      url: 'https://colab.research.google.com/',                                                     starred: false },
+                { text: 'omni calc',  url: 'https://www.omnicalculator.com/',                                                        starred: false },
             ]
         },
         {
             title: 'misc',
             links: [
-                { text: 'calendar',   url: 'https://calendar.google.com/calendar/u/0', starred: false },
-                { text: 'future me',  url: 'https://www.futureme.org/',               starred: false },
-                { text: 'knowledge',  url: 'https://rentry.org/the-piracy-glossary',  starred: false },
-                { text: 'link vault', url: 'https://najmossalahin.github.io/AI_Link_Vault/', starred: false },
-                { text: 'mood track', url: 'https://najmossalahin.github.io/Zenith_Tracker/', starred: false },
-                { text: 'virus find', url: 'https://www.virustotal.com/gui/home/upload', starred: false },
-                { text: 'fake id',    url: 'https://www.fakenamegenerator.com/',       starred: false },
-                { text: 'fake img',   url: 'https://thispersondoesnotexist.com/',      starred: false },
+                { text: 'calendar',   url: 'https://calendar.google.com/calendar/u/0',                                              starred: false },
+                { text: 'future me',  url: 'https://www.futureme.org/',                                                              starred: false },
+                { text: 'knowledge',  url: 'https://rentry.org/the-piracy-glossary',                                                 starred: false },
+                { text: 'link vault', url: 'https://najmossalahin.github.io/AI_Link_Vault/',                                         starred: false },
+                { text: 'mood track', url: 'https://najmossalahin.github.io/Zenith_Tracker/',                                        starred: false },
+                { text: 'virus find', url: 'https://www.virustotal.com/gui/home/upload',                                             starred: false },
+                { text: 'fake id',    url: 'https://www.fakenamegenerator.com/',                                                     starred: false },
+                { text: 'fake img',   url: 'https://thispersondoesnotexist.com/',                                                    starred: false },
             ]
         }
     ];
@@ -625,8 +395,7 @@
                 gistId = await findOrCreateGist(authToken);
                 localStorage.setItem(STORAGE_KEY_GIST_ID, gistId);
                 await bootstrapApp();
-            } catch (e) {
-                // Token may be expired/invalid
+            } catch {
                 clearToken();
                 showTokenGate();
             }
@@ -635,40 +404,27 @@
         }
     }
 
-    function showTokenGate() {
-        document.getElementById('token-gate').classList.add('show');
-    }
-
-    function hideTokenGate() {
-        document.getElementById('token-gate').classList.remove('show');
-    }
+    function showTokenGate() { document.getElementById('token-gate').classList.add('show'); }
+    function hideTokenGate() { document.getElementById('token-gate').classList.remove('show'); }
 
     async function bootstrapApp() {
         try {
             setSyncStatus('⟳ syncing…');
             const settings = await loadFromGist(authToken, gistId);
             bookmarksData  = settings.bookmarks || DEFAULT_BOOKMARKS;
-            // Restore dot links
-            if (settings.dotLinks) {
-                saveDotLinks(settings.dotLinks);
-            }
-            // Restore gif list
+            if (settings.dotLinks)                          saveDotLinks(settings.dotLinks);
             if (settings.gifList && settings.gifList.length) {
                 saveGifList(settings.gifList);
                 gifIndex = settings.gifCurrentIdx || 0;
                 renderGif();
             }
-            // Restore weather city
-            if (settings.weatherCity) {
-                localStorage.setItem('sp_weather_city', settings.weatherCity);
-            } else {
-                localStorage.removeItem('sp_weather_city');
-            }
+            if (settings.weatherCity) localStorage.setItem('sp_weather_city', settings.weatherCity);
+            else                       localStorage.removeItem('sp_weather_city');
             setSyncStatus('synced', '#b8bb26');
             setTimeout(() => setSyncStatus(''), 2500);
-        } catch (e) {
+        } catch {
             setSyncStatus('offline — using local cache', '#fabd2f');
-            const cached = localStorage.getItem('bookmarksData_cache');
+            const cached  = localStorage.getItem('bookmarksData_cache');
             bookmarksData = cached ? JSON.parse(cached) : DEFAULT_BOOKMARKS;
         }
         hideTokenGate();
@@ -681,20 +437,17 @@
         const errorEl   = document.getElementById('token-error');
         const loadingEl = document.getElementById('token-loading');
         const token     = input.value.trim();
+        const submitBtn = document.getElementById('token-submit');
 
         errorEl.textContent   = '';
         loadingEl.textContent = '';
 
-        if (!token) {
-            errorEl.textContent = 'Token cannot be empty.';
-            return;
-        }
+        if (!token) { errorEl.textContent = 'Token cannot be empty.'; return; }
 
         loadingEl.textContent = '⟳ Verifying token and finding/creating gist…';
-        document.getElementById('token-submit').disabled = true;
+        submitBtn.disabled    = true;
 
         try {
-            // Validate token
             const userRes = await fetch(`${GIST_API}/user`, { headers: gistHeaders(token) });
             if (!userRes.ok) throw new Error('Invalid token — check scope and expiry.');
 
@@ -707,44 +460,42 @@
             loadingEl.textContent = 'connected';
             await bootstrapApp();
         } catch (e) {
-            errorEl.textContent = e.message || 'Connection failed.';
+            errorEl.textContent   = e.message || 'Connection failed.';
             loadingEl.textContent = '';
         } finally {
-            document.getElementById('token-submit').disabled = false;
+            submitBtn.disabled = false;
         }
     });
 
-    // Allow Enter key on token input
     document.getElementById('token-input').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') document.getElementById('token-submit').click();
     });
 
     // ═══════════════════════════════════════════════════
-    //  CLOCK
+    //  CLOCK (12 / 24-hour toggle, persisted)
     // ═══════════════════════════════════════════════════
-    // ── Clock: 12 / 24-hour toggle (persisted) ─────────
     let use24h = localStorage.getItem('sp_clock_24h') === 'true';
 
     function updateDateTime() {
-        const now = new Date();
-        let hours = now.getHours();
+        const now     = new Date();
+        let   hours   = now.getHours();
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
-        let timeString;
+        let   timeString;
         if (use24h) {
             timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
         } else {
             const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
+            hours      = hours % 12 || 12;
             timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
         }
         const dateString = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         document.getElementById('current-datetime').textContent = `${dateString} ${timeString}`;
     }
 
-    const datetimeEl = document.getElementById('current-datetime');
+    const datetimeEl  = document.getElementById('current-datetime');
     datetimeEl.style.cursor = 'pointer';
-    datetimeEl.title = 'Toggle 12/24h';
+    datetimeEl.title  = 'Toggle 12/24h';
     datetimeEl.addEventListener('click', () => {
         use24h = !use24h;
         localStorage.setItem('sp_clock_24h', use24h);
@@ -758,7 +509,7 @@
     //  SEARCH BAR
     // ═══════════════════════════════════════════════════
     const searchTextElement = document.getElementById('search-text');
-    let searchQuery = '';
+    let   searchQuery       = '';
 
     function isValidUrl(string) {
         const urlRegex = /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i;
@@ -766,9 +517,16 @@
     }
 
     document.addEventListener('keydown', (event) => {
+        // Ctrl+R → toggle CLI (prevents browser page-refresh)
+        if (event.ctrlKey && event.key === 'r') {
+            event.preventDefault();
+            toggleCLI();
+            return;
+        }
+
         const modalOpen = document.getElementById('settings-modal').classList.contains('show');
         const gateOpen  = document.getElementById('token-gate').classList.contains('show');
-        if (modalOpen || gateOpen) return;
+        if (modalOpen || gateOpen || cliOpen) return;
 
         if (event.key === 'Backspace' || event.key === 'Enter' || event.key.length === 1) {
             event.preventDefault();
@@ -778,8 +536,9 @@
         } else if (event.key === 'Enter') {
             const q = searchQuery.trim();
             if (q) {
-                let url = isValidUrl(q) ? (q.startsWith('http') ? q : `http://${q}`)
-                                        : `https://www.duckduckgo.com/search?q=${encodeURIComponent(q)}`;
+                const url = isValidUrl(q)
+                    ? (q.startsWith('http') ? q : `http://${q}`)
+                    : `https://www.duckduckgo.com/search?q=${encodeURIComponent(q)}`;
                 window.open(url, '_blank');
             }
             searchQuery = '';
@@ -789,21 +548,19 @@
         searchTextElement.textContent = searchQuery;
     });
 
-    // ── Mobile search input ──
     const mobileSearch = document.getElementById('mobile-search');
     if (mobileSearch) {
         mobileSearch.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const q = mobileSearch.value.trim();
-                if (q) {
-                    const url = isValidUrl(q)
-                        ? (q.startsWith('http') ? q : `http://${q}`)
-                        : `https://www.duckduckgo.com/search?q=${encodeURIComponent(q)}`;
-                    window.open(url, '_blank');
-                }
-                mobileSearch.value = '';
-                mobileSearch.blur();
+            if (e.key !== 'Enter') return;
+            const q = mobileSearch.value.trim();
+            if (q) {
+                const url = isValidUrl(q)
+                    ? (q.startsWith('http') ? q : `http://${q}`)
+                    : `https://www.duckduckgo.com/search?q=${encodeURIComponent(q)}`;
+                window.open(url, '_blank');
             }
+            mobileSearch.value = '';
+            mobileSearch.blur();
         });
     }
 
@@ -828,36 +585,30 @@
             titleLi.textContent = categoryData.title;
             linksDiv.appendChild(titleLi);
 
-            // Build DOM nodes but do NOT store them back on categoryData
-            // (that was the source of the DOMException clone bug)
             const linkElements = categoryData.links.map(link => {
                 const li = document.createElement('li');
                 const a  = document.createElement('a');
-                a.href = link.url;
+                a.href        = link.url;
                 a.textContent = link.text;
-                a.target = '_blank';
+                a.target      = '_blank';
                 if (link.starred) a.classList.add('starred-link');
                 li.appendChild(a);
                 return li;
             });
 
-            let currentPage = 0;
-            const totalLinks = linkElements.length;
+            let currentPage      = 0;
+            const totalLinks     = linkElements.length;
+            const totalPages     = Math.ceil(totalLinks / linksPerPage);
 
             function showPage(page) {
-                // Remove all link lis (keep titleLi)
                 Array.from(linksDiv.querySelectorAll('li:not(.title)')).forEach(el => el.remove());
                 const start = page * linksPerPage;
                 const end   = Math.min(start + linksPerPage, totalLinks);
-                for (let i = start; i < end; i++) {
-                    linksDiv.appendChild(linkElements[i]);
-                }
+                for (let i = start; i < end; i++) linksDiv.appendChild(linkElements[i]);
             }
 
             showPage(0);
             categoryDiv.appendChild(linksDiv);
-
-            const totalPages = Math.ceil(totalLinks / linksPerPage);
 
             if (totalPages > 1) {
                 const dotsContainer = document.createElement('div');
@@ -898,16 +649,18 @@
     // ═══════════════════════════════════════════════════
     //  SETTINGS MODAL
     // ═══════════════════════════════════════════════════
-    const settingsButton          = document.getElementById('settings-button');
-    const settingsModal           = document.getElementById('settings-modal');
-    const closeButton             = settingsModal.querySelector('.close-button');
+    const settingsButton           = document.getElementById('settings-button');
+    const settingsModal            = document.getElementById('settings-modal');
+    const closeButton              = settingsModal.querySelector('.close-button');
     const modalCategoriesContainer = document.getElementById('modal-categories');
-    const addCategoryButton       = document.getElementById('add-category-button');
-    const saveSettingsButton      = document.getElementById('save-settings-button');
+    const addCategoryButton        = document.getElementById('add-category-button');
+    const saveSettingsButton       = document.getElementById('save-settings-button');
 
     settingsButton.addEventListener('click', () => {
         settingsModal.classList.add('show');
         renderModalContent();
+        renderDotSettings();
+        renderGifSettings();
     });
 
     closeButton.addEventListener('click', () => settingsModal.classList.remove('show'));
@@ -923,12 +676,11 @@
             const categoryDiv = document.createElement('div');
             categoryDiv.classList.add('modal-category-item');
 
-            // ── Category header ──
             const categoryHeader = document.createElement('div');
             categoryHeader.classList.add('modal-category-header');
 
             const categoryTitleInput = document.createElement('input');
-            categoryTitleInput.type = 'text';
+            categoryTitleInput.type  = 'text';
             categoryTitleInput.value = category.title;
             categoryTitleInput.classList.add('category-title-input');
             categoryTitleInput.addEventListener('input', (e) => { category.title = e.target.value; });
@@ -958,7 +710,6 @@
             categoryHeader.appendChild(deleteCategoryButton);
             categoryDiv.appendChild(categoryHeader);
 
-            // ── Links ──
             const linksList = document.createElement('div');
             linksList.classList.add('modal-links-list');
 
@@ -969,7 +720,7 @@
                 const starButton = document.createElement('button');
                 starButton.classList.add('star-button');
                 starButton.innerHTML = link.starred ? '★' : '☆';
-                starButton.title = link.starred ? 'Unstar' : 'Star';
+                starButton.title     = link.starred ? 'Unstar' : 'Star';
                 if (link.starred) starButton.classList.add('is-starred');
                 starButton.addEventListener('click', () => {
                     link.starred = !link.starred;
@@ -977,16 +728,16 @@
                 });
                 linkItem.appendChild(starButton);
 
-                const linkTextInput = document.createElement('input');
-                linkTextInput.type = 'text';
-                linkTextInput.value = link.text;
+                const linkTextInput      = document.createElement('input');
+                linkTextInput.type       = 'text';
+                linkTextInput.value      = link.text;
                 linkTextInput.placeholder = 'Link Text';
                 linkTextInput.addEventListener('input', (e) => { link.text = e.target.value; });
                 linkItem.appendChild(linkTextInput);
 
-                const linkUrlInput = document.createElement('input');
-                linkUrlInput.type = 'url';
-                linkUrlInput.value = link.url;
+                const linkUrlInput      = document.createElement('input');
+                linkUrlInput.type       = 'url';
+                linkUrlInput.value      = link.url;
                 linkUrlInput.placeholder = 'Link URL';
                 linkUrlInput.addEventListener('input', (e) => { link.url = e.target.value; });
                 linkItem.appendChild(linkUrlInput);
@@ -999,7 +750,6 @@
                     renderModalContent();
                 });
                 linkItem.appendChild(deleteLinkButton);
-
                 linksList.appendChild(linkItem);
             });
 
@@ -1022,36 +772,24 @@
         renderModalContent();
     });
 
-    // ── Save Changes → Gist ───────────────────────────
     saveSettingsButton.addEventListener('click', async () => {
-        saveSettingsButton.disabled = true;
+        saveSettingsButton.disabled    = true;
         saveSettingsButton.textContent = 'Saving…';
 
         try {
-            // Build full settings payload (bookmarks + dot links + weather city)
             const payload = buildSettingsPayload();
-
-            // Persist to GitHub Gist (cross-device sync)
             await saveToGist(authToken, gistId, payload);
-
-            // Update in-memory state with clean copy
             bookmarksData = payload.bookmarks;
-
-            // Also cache locally for offline fallback
             localStorage.setItem('bookmarksData_cache', JSON.stringify(payload.bookmarks));
-
             setSyncStatus('saved', '#b8bb26');
             setTimeout(() => setSyncStatus(''), 3000);
-
-            // Close modal and refresh bookmarks (redirect to home state)
             settingsModal.classList.remove('show');
             renderBookmarks();
-
         } catch (e) {
             setSyncStatus('save failed: ' + e.message, '#cc241d');
             alert('Save failed: ' + e.message);
         } finally {
-            saveSettingsButton.disabled = false;
+            saveSettingsButton.disabled    = false;
             saveSettingsButton.textContent = 'Save Changes';
         }
     });
@@ -1059,34 +797,20 @@
     // ═══════════════════════════════════════════════════
     //  WEATHER
     // ═══════════════════════════════════════════════════
-    const weatherBar    = document.getElementById('weather-bar');
-
-    let weatherOpen     = false;
-    let weatherCache    = null;
-
-    function wmoCondition(code) {
-        if (code === 0)  return 'Clear';
-        if (code <= 2)   return 'P.Cloudy';
-        if (code === 3)  return 'Cloudy';
-        if (code <= 49)  return 'Foggy';
-        if (code <= 59)  return 'Drizzle';
-        if (code <= 69)  return 'Rain';
-        if (code <= 79)  return 'Snow';
-        if (code <= 84)  return 'Rain';
-        if (code <= 94)  return 'Storm';
-        return 'Thunder';
-    }
+    const weatherBar = document.getElementById('weather-bar');
+    let   weatherOpen  = false;
+    let   weatherCache = null;
 
     function wmoLabel(code) {
-        if (code === 0)  return 'Clear';
-        if (code <= 2)   return 'Partly Cloudy';
-        if (code === 3)  return 'Overcast';
-        if (code <= 49)  return 'Foggy';
-        if (code <= 59)  return 'Drizzle';
-        if (code <= 69)  return 'Rain';
-        if (code <= 79)  return 'Snow';
-        if (code <= 84)  return 'Showers';
-        if (code <= 94)  return 'Thunderstorm';
+        if (code === 0) return 'Clear';
+        if (code <= 2)  return 'Partly Cloudy';
+        if (code === 3) return 'Overcast';
+        if (code <= 49) return 'Foggy';
+        if (code <= 59) return 'Drizzle';
+        if (code <= 69) return 'Rain';
+        if (code <= 79) return 'Snow';
+        if (code <= 84) return 'Showers';
+        if (code <= 94) return 'Thunderstorm';
         return 'Storm';
     }
 
@@ -1096,23 +820,19 @@
             `&daily=precipitation_probability_max&timezone=auto&forecast_days=1`;
         const r = await fetch(url);
         if (!r.ok) throw new Error('weather fetch failed');
-        const d = await r.json();
-        const c = d.current;
-        const desc  = wmoLabel(c.weather_code);
+        const d     = await r.json();
+        const c     = d.current;
         const temp  = Math.round(c.temperature_2m);
         const feels = Math.round(c.apparent_temperature);
-        const humid = c.relative_humidity_2m;
-        const rain  = d.daily.precipitation_probability_max[0] ?? '—';
         weatherCache = {
-            bar:      `${label} · ${temp}°C · ${desc}`,
-            humidity:  `${humid}%`,
-            rain:      `${rain}%`,
+            bar:       `${label} · ${temp}°C · ${wmoLabel(c.weather_code)}`,
+            humidity:  `${c.relative_humidity_2m}%`,
+            rain:      `${d.daily.precipitation_probability_max[0] ?? '—'}%`,
             feelsLike: `${feels}°C`
         };
         renderWeather();
     }
 
-    // Reverse-geocode coords → "Suburb, City" using Nominatim
     async function reverseGeocode(lat, lon) {
         try {
             const r = await fetch(
@@ -1122,7 +842,6 @@
             if (!r.ok) return null;
             const d = await r.json();
             const a = d.address || {};
-            // Pick the most specific neighbourhood-level name available
             const sub  = a.suburb || a.neighbourhood || a.quarter || a.village || a.town || '';
             const city = a.city || a.county || a.state_district || a.state || '';
             if (sub && city) return `${sub}, ${city}`;
@@ -1139,7 +858,6 @@
         const gd = await geo.json();
         if (!gd.results || !gd.results.length) throw new Error(`"${city}" not found`);
         const { latitude, longitude, name, admin1 } = gd.results[0];
-        // Use "Name, Region" — no country code
         const label = admin1 && admin1 !== name ? `${name}, ${admin1}` : name;
         await fetchWeatherByCoords(latitude, longitude, label);
     }
@@ -1157,20 +875,21 @@
         renderWeather();
     });
 
-    async function initWeather() {
+    // Single interval at top level — never accumulates across re-calls
+    async function runWeatherFetch() {
         const savedCity = localStorage.getItem('sp_weather_city');
         if (savedCity) {
             weatherBar.textContent = 'loading…';
-            try { await fetchWeatherByCity(savedCity); }
-            catch { weatherBar.textContent = 'weather unavailable'; }
+            try        { await fetchWeatherByCity(savedCity); }
+            catch      { weatherBar.textContent = 'weather unavailable'; }
         } else {
             if (!navigator.geolocation) return;
             weatherBar.textContent = 'locating…';
             navigator.geolocation.getCurrentPosition(
                 async (pos) => {
                     try {
-                        const lat = pos.coords.latitude;
-                        const lon = pos.coords.longitude;
+                        const lat   = pos.coords.latitude;
+                        const lon   = pos.coords.longitude;
                         const label = await reverseGeocode(lat, lon) || 'Here';
                         await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
                     } catch { weatherBar.textContent = 'weather unavailable'; }
@@ -1178,7 +897,11 @@
                 () => { weatherBar.textContent = ''; }
             );
         }
-        setInterval(() => initWeather(), 15 * 60 * 1000);
+    }
+
+    function initWeather() {
+        runWeatherFetch();
+        setInterval(runWeatherFetch, 15 * 60 * 1000);
     }
 
     // ── Location settings wiring ──────────────────────
@@ -1209,17 +932,17 @@
             return;
         }
         localStorage.removeItem('sp_weather_city');
-        locationInput.value = '';
+        locationInput.value        = '';
         locationStatus.textContent = 'locating…';
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 try {
-                        const lat = pos.coords.latitude;
-                        const lon = pos.coords.longitude;
-                        const label = await reverseGeocode(lat, lon) || 'Here';
-                        await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
-                        locationStatus.textContent = `using ${label}`;
-                    } catch { locationStatus.textContent = 'weather unavailable'; }
+                    const lat   = pos.coords.latitude;
+                    const lon   = pos.coords.longitude;
+                    const label = await reverseGeocode(lat, lon) || 'Here';
+                    await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
+                    locationStatus.textContent = `using ${label}`;
+                } catch { locationStatus.textContent = 'weather unavailable'; }
             },
             () => { locationStatus.textContent = 'location denied'; }
         );
@@ -1229,9 +952,8 @@
     //  GIF SWITCHER
     // ═══════════════════════════════════════════════════
     const GIF_DEFAULT = [{ url: 'cat.gif', name: 'cat' }];
-    let gifIndex = 0;
+    let   gifIndex    = 0;
 
-    // ── URL normalizer ────────────────────────────────
     function normalizeGifUrl(raw) {
         const url = raw.trim();
         try {
@@ -1250,7 +972,6 @@
         return url;
     }
 
-    // ── Smart name extractor ──────────────────────────
     const GIF_GENERIC = new Set([
         'anime','gif','gifs','funny','cute','lol','meme','reaction','haha',
         'sad','happy','love','wow','best','the','and','for','my','a','an',
@@ -1260,35 +981,26 @@
 
     function gifSmartName(url, filename) {
         if (url === 'cat.gif') return 'cat';
-        // From a local file — use filename
-        if (filename) {
-            return filename.replace(/\.[^.]+$/, '').replace(/[-_.]/g, ' ').trim().split(/\s+/)[0].slice(0, 20);
-        }
+        if (filename) return filename.replace(/\.[^.]+$/, '').replace(/[-_.]/g, ' ').trim().split(/\s+/)[0].slice(0, 20);
         if (url.startsWith('data:')) return 'local';
         try {
             const u    = new URL(url);
             const host = u.hostname.replace(/^www\./, '');
-
             if (host === 'giphy.com' || host === 'media.giphy.com' || host === 'i.giphy.com') {
                 const parts = u.pathname.split('/').filter(Boolean);
-                // /gifs/channel-word1-word2-HASHID
-                const slug = (parts[0] === 'gifs' || parts[0] === 'clips') ? parts[1] : parts[parts.length - 1];
+                const slug  = (parts[0] === 'gifs' || parts[0] === 'clips') ? parts[1] : parts[parts.length - 1];
                 if (slug) {
-                    const segs = slug.split('-');
-                    // Last segment is the hash ID if it contains uppercase letters
+                    const segs    = slug.split('-');
                     const hasUpper = s => /[A-Z]/.test(s);
                     const cleaned  = hasUpper(segs[segs.length - 1]) ? segs.slice(0, -1) : segs;
-                    // First segment is usually the uploader handle — skip it
                     const content  = cleaned.slice(1).filter(w => !GIF_GENERIC.has(w.toLowerCase()));
-                    if (content.length) return content[0];
+                    if (content.length)   return content[0];
                     if (cleaned.length > 1) return cleaned[1];
                 }
             }
-
-            // Generic fallback: first meaningful word from last path segment
-            const parts  = u.pathname.split('/').filter(Boolean);
-            const last   = (parts[parts.length - 1] || '').replace(/\.[^.]+$/, '');
-            const words  = last.split(/[-_]/).filter(w => !GIF_GENERIC.has(w.toLowerCase()) && w.length > 1);
+            const parts = u.pathname.split('/').filter(Boolean);
+            const last  = (parts[parts.length - 1] || '').replace(/\.[^.]+$/, '');
+            const words = last.split(/[-_]/).filter(w => !GIF_GENERIC.has(w.toLowerCase()) && w.length > 1);
             return (words[0] || last.split(/[-_]/)[0] || 'gif').slice(0, 20);
         } catch { return 'gif'; }
     }
@@ -1298,7 +1010,6 @@
             const s    = localStorage.getItem('sp_gif_list');
             const list = s ? JSON.parse(s) : null;
             if (!Array.isArray(list) || !list.length) return [...GIF_DEFAULT];
-            // Migrate old plain-string format
             return list.map(item =>
                 typeof item === 'string'
                     ? { url: item, name: gifSmartName(item) }
@@ -1307,9 +1018,7 @@
         } catch { return [...GIF_DEFAULT]; }
     }
 
-    function saveGifList(list) {
-        localStorage.setItem('sp_gif_list', JSON.stringify(list));
-    }
+    function saveGifList(list) { localStorage.setItem('sp_gif_list', JSON.stringify(list)); }
 
     function renderGif() {
         const list = loadGifList();
@@ -1342,27 +1051,26 @@
             inner.className = 'gif-card-inner';
 
             const img = document.createElement('img');
-            img.src = item.url;
-            img.alt = '';
+            img.src   = item.url;
+            img.alt   = '';
 
-            // ── Editable label ───────────────────────
             const labelWrap = document.createElement('div');
             labelWrap.className = 'gif-card-label-wrap';
 
             const labelText = document.createElement('span');
-            labelText.className = 'gif-card-label-text';
+            labelText.className   = 'gif-card-label-text';
             labelText.textContent = item.name;
 
             const pencil = document.createElement('span');
-            pencil.className = 'gif-card-pencil';
+            pencil.className   = 'gif-card-pencil';
             pencil.textContent = '✎';
-            pencil.title = 'rename';
+            pencil.title       = 'rename';
 
             function startEdit(e) {
                 e.stopPropagation();
-                const inp = document.createElement('input');
-                inp.type  = 'text';
-                inp.value = item.name;
+                const inp  = document.createElement('input');
+                inp.type   = 'text';
+                inp.value  = item.name;
                 inp.className = 'gif-card-label-input';
                 labelWrap.innerHTML = '';
                 labelWrap.appendChild(inp);
@@ -1376,7 +1084,7 @@
                 }
                 inp.addEventListener('blur', commit);
                 inp.addEventListener('keydown', ev => {
-                    if (ev.key === 'Enter')  { inp.blur(); }
+                    if (ev.key === 'Enter')  inp.blur();
                     if (ev.key === 'Escape') { inp.value = item.name; inp.blur(); }
                     ev.stopPropagation();
                 });
@@ -1387,11 +1095,10 @@
             labelWrap.appendChild(labelText);
             labelWrap.appendChild(pencil);
 
-            // ── Delete ───────────────────────────────
             const del = document.createElement('button');
-            del.className = 'gif-card-del';
+            del.className   = 'gif-card-del';
             del.textContent = '×';
-            del.title = 'remove';
+            del.title       = 'remove';
             del.addEventListener('click', (e) => {
                 e.stopPropagation();
                 list.splice(i, 1);
@@ -1417,7 +1124,6 @@
         container.appendChild(grid);
     }
 
-    // Add gif via URL
     document.getElementById('gif-add-btn').addEventListener('click', () => {
         const input  = document.getElementById('gif-url-input');
         const status = document.getElementById('gif-status');
@@ -1428,25 +1134,24 @@
         const list = loadGifList();
         list.push({ url, name });
         saveGifList(list);
-        gifIndex = list.length - 1;
-        input.value = '';
+        gifIndex     = list.length - 1;
+        input.value  = '';
         status.textContent = `added as "${name}"`;
         setTimeout(() => { status.textContent = ''; }, 2500);
         renderGif();
         renderGifSettings();
     });
 
-    // Drag-and-drop onto gif
     const gifWrap = document.getElementById('gif-wrap');
-    gifWrap.addEventListener('dragover', e => { e.preventDefault(); gifWrap.style.opacity = '0.7'; });
+    gifWrap.addEventListener('dragover',  e  => { e.preventDefault(); gifWrap.style.opacity = '0.7'; });
     gifWrap.addEventListener('dragleave', () => { gifWrap.style.opacity = ''; });
     gifWrap.addEventListener('drop', e => {
         e.preventDefault();
         gifWrap.style.opacity = '';
         const file = e.dataTransfer.files[0];
         if (!file || !file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
+        const reader   = new FileReader();
+        reader.onload  = ev => {
             const list = loadGifList();
             list.push({ url: ev.target.result, name: gifSmartName(ev.target.result, file.name) });
             saveGifList(list);
@@ -1457,14 +1162,13 @@
         reader.readAsDataURL(file);
     });
 
-    // Local file browse button
     document.getElementById('gif-file-input').addEventListener('change', (e) => {
-        const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+        const files  = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
         if (!files.length) return;
         const status = document.getElementById('gif-status');
-        let done = 0;
+        let   done   = 0;
         files.forEach(file => {
-            const reader = new FileReader();
+            const reader  = new FileReader();
             reader.onload = ev => {
                 const list = loadGifList();
                 list.push({ url: ev.target.result, name: gifSmartName(ev.target.result, file.name) });
@@ -1501,9 +1205,7 @@
         } catch { return DOT_DEFAULTS.map(d => ({...d})); }
     }
 
-    function saveDotLinks(links) {
-        localStorage.setItem('sp_dot_links', JSON.stringify(links));
-    }
+    function saveDotLinks(links) { localStorage.setItem('sp_dot_links', JSON.stringify(links)); }
 
     function renderDotButtons() {
         const links = loadDotLinks();
@@ -1516,31 +1218,30 @@
     }
 
     function renderDotSettings() {
-        const links = loadDotLinks();
+        const links     = loadDotLinks();
         const container = document.getElementById('dot-links-settings');
         if (!container) return;
         container.innerHTML = '';
         links.forEach((link, i) => {
             const row = document.createElement('div');
-            row.className = 'location-row';
+            row.className      = 'location-row';
             row.style.marginBottom = '8px';
 
-            const labelInput = document.createElement('input');
-            labelInput.type = 'text';
-            labelInput.value = link.label;
+            const labelInput       = document.createElement('input');
+            labelInput.type        = 'text';
+            labelInput.value       = link.label;
             labelInput.placeholder = 'label';
-            labelInput.style.cssText = 'flex:0 0 90px;min-width:0;padding:7px 8px;border:1px solid #83a598;border-radius:5px;background:#3c3836;color:#ebdbb2;font-family:"Fira Code",monospace;font-size:0.82em;box-sizing:border-box;';
+            labelInput.className   = 'dot-label-input';
 
-            const urlInput = document.createElement('input');
-            urlInput.type = 'url';
-            urlInput.value = link.url;
+            const urlInput       = document.createElement('input');
+            urlInput.type        = 'url';
+            urlInput.value       = link.url;
             urlInput.placeholder = 'https://…';
-            urlInput.style.cssText = 'flex:1;min-width:0;padding:7px 8px;border:1px solid #504945;border-radius:5px;background:#3c3836;color:#ebdbb2;font-family:"Fira Code",monospace;font-size:0.82em;box-sizing:border-box;';
+            urlInput.className   = 'dot-url-input';
 
-            const saveBtn = document.createElement('button');
+            const saveBtn       = document.createElement('button');
             saveBtn.textContent = 'Set';
-            saveBtn.className = 'modal-button loc-btn';
-
+            saveBtn.className   = 'modal-button loc-btn';
             saveBtn.addEventListener('click', () => {
                 links[i].label = labelInput.value.trim();
                 links[i].url   = urlInput.value.trim();
@@ -1555,18 +1256,436 @@
         });
     }
 
-    // Hook into modal open to render dot + gif settings
-    const _origModalOpen = document.querySelector('.top-left-link-button');
-    if (_origModalOpen) {
-        _origModalOpen.addEventListener('click', () => {
-            renderDotSettings();
-            renderGifSettings();
-        });
+    renderDotButtons();
+    initWeather();
+
+    // ═══════════════════════════════════════════════════
+    //  CLI ENGINE
+    // ═══════════════════════════════════════════════════
+
+    let cliOpen       = false;
+    let cliCmdHistory = [];
+    let cliHistIdx    = -1;
+
+    const cliOverlay = document.getElementById('cli-overlay');
+    const cliOutput  = document.getElementById('cli-output');
+    const cliInputEl = document.getElementById('cli-input');
+    const cliDotBtn  = document.getElementById('cli-dot');
+
+    function openCLI() {
+        if (window.innerWidth <= 768) return;   // no CLI on mobile/tablet
+        cliOpen = true;
+        cliOverlay.classList.add('show');
+        cliDotBtn.classList.add('active');
+        if (!cliOutput.children.length) cliWelcome();
+        setTimeout(() => cliInputEl.focus(), 50);
     }
 
-    renderDotButtons();
+    function closeCLI() {
+        cliOpen = false;
+        cliOverlay.classList.remove('show');
+        cliDotBtn.classList.remove('active');
+        cliInputEl.blur();
+    }
 
-    initWeather();
+    function toggleCLI() { cliOpen ? closeCLI() : openCLI(); }
+
+    // Mirror real input value into the visible display span
+    const cliTyped = document.getElementById('cli-typed');
+    function syncCliDisplay() { cliTyped.textContent = cliInputEl.value; }
+    cliInputEl.addEventListener('input', syncCliDisplay);
+
+    cliDotBtn.addEventListener('click', toggleCLI);
+    document.getElementById('cli-close').addEventListener('click', closeCLI);
+
+    // Re-focus input on any click inside the overlay
+    cliOverlay.addEventListener('click', () => cliInputEl.focus());
+
+    // ── Output primitives ───────────────────────────────
+
+    function cliLine(text, cls = 'out') {
+        const el       = document.createElement('div');
+        el.className   = `cli-line cli-line--${cls}`;
+        el.textContent = text;
+        cliOutput.appendChild(el);
+        cliOutput.scrollTop = cliOutput.scrollHeight;
+    }
+
+    function cliPrint(lines, cls = 'out') {
+        (Array.isArray(lines) ? lines : [lines]).forEach(l => cliLine(l, cls));
+    }
+
+    function cliErr(msg)  { cliLine(`✗ ${msg}`, 'err'); }
+    function cliOk(msg)   { cliLine(`✓ ${msg}`, 'ok'); }
+    function cliInfo(msg) { cliLine(msg, 'info'); }
+    function cliWarn(msg) { cliLine(`⚠ ${msg}`, 'warn'); }
+
+    function cliWelcome() {
+        cliPrint([
+            '~/startpage terminal  —  type "help" for commands',
+            'ctrl+r to toggle  ·  esc to close  ·  ↑↓ for history',
+            '',
+        ], 'muted');
+    }
+
+    // ── Argument parser (respects "quoted strings") ─────
+
+    function parseArgs(input) {
+        const args = [];
+        let   cur  = '';
+        let   inQ  = false;
+        for (const ch of input.trim()) {
+            if (ch === '"') { inQ = !inQ; continue; }
+            if (ch === ' ' && !inQ) { if (cur) { args.push(cur); cur = ''; } }
+            else cur += ch;
+        }
+        if (cur) args.push(cur);
+        return args;
+    }
+
+    // ── Fuzzy finders ───────────────────────────────────
+
+    function findCategory(q) {
+        const lq = q.toLowerCase();
+        return bookmarksData.find(c => c.title.toLowerCase() === lq)
+            || bookmarksData.find(c => c.title.toLowerCase().includes(lq));
+    }
+
+    function findLink(q) {
+        const lq = q.toLowerCase();
+        for (const cat of bookmarksData) {
+            const link = cat.links.find(l => l.text.toLowerCase() === lq)
+                      || cat.links.find(l => l.text.toLowerCase().includes(lq));
+            if (link) return { link, cat };
+        }
+        return null;
+    }
+
+    // ── Weather helper (CLI-specific) ───────────────────
+
+    function showWeatherInCLI() {
+        if (!weatherCache) { cliWarn('no weather data cached'); return; }
+        cliInfo(weatherCache.bar);
+        cliPrint([
+            `  humidity : ${weatherCache.humidity}`,
+            `  rain     : ${weatherCache.rain}`,
+            `  feels    : ${weatherCache.feelsLike}`,
+        ]);
+    }
+
+    // ── Command registry ────────────────────────────────
+
+    const CMD = {
+
+        help() {
+            cliPrint([
+                '',
+                '  ls                         list all categories',
+                '  ls <category>              list links in a category',
+                '  cat <category>             alias for ls <category>',
+                '  open <name|url>            open bookmark or URL in new tab',
+                '',
+                '  search <query>   [ddg]     DuckDuckGo search',
+                '  google <query>   [g]       Google search',
+                '  yt <query>       [youtube] YouTube search',
+                '  reddit <query>   [r]       Reddit search',
+                '  pinterest <query>[pin]     Pinterest search',
+                '',
+                '  add <cat> <name> <url>     add a link to a category',
+                '  rm  <cat> <name>           remove a link from a category',
+                '  star <name>                toggle ★ on a link',
+                '',
+                '  gif                        current gif info',
+                '  gif next | prev            cycle gif',
+                '  gif list                   list all gifs',
+                '  gif <n>                    jump to gif by index',
+                '',
+                '  weather                    show weather snapshot',
+                '  date                       current date & time',
+                '  token                      show token status',
+                '  token reset                clear stored token & reload',
+                '',
+                '  clear | cls                clear terminal output',
+                '  exit | q | quit            close terminal',
+                '',
+            ]);
+        },
+
+        clear() { cliOutput.innerHTML = ''; },
+        cls()   { cliOutput.innerHTML = ''; },
+
+        exit()  { closeCLI(); },
+        q()     { closeCLI(); },
+        quit()  { closeCLI(); },
+
+        date() {
+            const now = new Date();
+            cliInfo(now.toLocaleString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long',
+                day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+            }));
+        },
+
+        ls(args) {
+            if (!args.length) {
+                cliInfo('categories:');
+                bookmarksData.forEach(cat => {
+                    const s    = cat.links.filter(l => l.starred).length;
+                    const note = s ? ` (${s}★)` : '';
+                    cliPrint([`  ${cat.title.padEnd(16)} ${cat.links.length} links${note}`]);
+                });
+                return;
+            }
+            const cat = findCategory(args.join(' '));
+            if (!cat) { cliErr(`category "${args.join(' ')}" not found`); return; }
+            cliInfo(`${cat.title}  (${cat.links.length} links)`);
+            cat.links.forEach((l, i) => {
+                const star = l.starred ? '★ ' : '  ';
+                cliPrint([`${star}[${String(i).padStart(2)}]  ${l.text.padEnd(18)}  ${l.url}`]);
+            });
+        },
+
+        cat(args) { CMD.ls(args); },
+
+        open(args) {
+            if (!args.length) { cliErr('usage: open <name|url>'); return; }
+            const q = args.join(' ');
+            if (/^https?:\/\//i.test(q) || /^www\./i.test(q)) {
+                const url = q.startsWith('http') ? q : `https://${q}`;
+                window.open(url, '_blank');
+                cliOk(`opened ${url}`);
+                return;
+            }
+            const found = findLink(q);
+            if (!found) { cliErr(`no bookmark matching "${q}"`); return; }
+            window.open(found.link.url, '_blank');
+            cliOk(`opened "${found.link.text}"  →  ${found.link.url}`);
+        },
+
+        search(args) {
+            if (!args.length) { cliErr('usage: search <query>'); return; }
+            const q = args.join(' ');
+            window.open(`https://duckduckgo.com/?q=${encodeURIComponent(q)}`, '_blank');
+            cliOk(`ddg → ${q}`);
+        },
+
+        ddg(args) { CMD.search(args); },
+
+        google(args) {
+            if (!args.length) { cliErr('usage: google <query>'); return; }
+            const q = args.join(' ');
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+            cliOk(`google → ${q}`);
+        },
+        g(args) { CMD.google(args); },
+
+        yt(args) {
+            if (!args.length) { cliErr('usage: yt <query>'); return; }
+            const q = args.join(' ');
+            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, '_blank');
+            cliOk(`youtube → ${q}`);
+        },
+        youtube(args) { CMD.yt(args); },
+
+        reddit(args) {
+            if (!args.length) { cliErr('usage: reddit <query>'); return; }
+            const q = args.join(' ');
+            window.open(`https://www.reddit.com/search/?q=${encodeURIComponent(q)}`, '_blank');
+            cliOk(`reddit → ${q}`);
+        },
+        r(args) { CMD.reddit(args); },
+
+        pinterest(args) {
+            if (!args.length) { cliErr('usage: pinterest <query>'); return; }
+            const q = args.join(' ');
+            window.open(`https://www.pinterest.com/search/pins/?q=${encodeURIComponent(q)}`, '_blank');
+            cliOk(`pinterest → ${q}`);
+        },
+        pin(args) { CMD.pinterest(args); },
+
+        add(args) {
+            // Signature: add <category> <name> <url>
+            // URL is always last (must start with http); name is second-to-last; rest is category
+            if (args.length < 3) { cliErr('usage: add <category> <name> <url>'); return; }
+            const url  = args[args.length - 1];
+            const name = args[args.length - 2];
+            const catQ = args.slice(0, -2).join(' ');
+            if (!/^https?:\/\//i.test(url)) {
+                cliErr(`URL must start with https://  —  got: "${url}"`);
+                return;
+            }
+            const cat = findCategory(catQ);
+            if (!cat) { cliErr(`category "${catQ}" not found  —  run "ls" to see categories`); return; }
+            cat.links.push({ text: name, url, starred: false });
+            renderBookmarks();
+            cliOk(`added "${name}" → ${cat.title}`);
+            cliWarn('in memory only  —  open settings → Save Changes to sync to gist');
+        },
+
+        rm(args) {
+            // Signature: rm <category> <name>
+            if (args.length < 2) { cliErr('usage: rm <category> <name>'); return; }
+            const name = args[args.length - 1];
+            const catQ = args.slice(0, -1).join(' ');
+            const cat  = findCategory(catQ);
+            if (!cat) { cliErr(`category "${catQ}" not found`); return; }
+            const idx  = cat.links.findIndex(l =>
+                l.text.toLowerCase() === name.toLowerCase() ||
+                l.text.toLowerCase().includes(name.toLowerCase())
+            );
+            if (idx === -1) { cliErr(`link "${name}" not found in "${cat.title}"`); return; }
+            const removed = cat.links.splice(idx, 1)[0];
+            renderBookmarks();
+            cliOk(`removed "${removed.text}" from ${cat.title}`);
+            cliWarn('in memory only  —  open settings → Save Changes to sync to gist');
+        },
+
+        star(args) {
+            if (!args.length) { cliErr('usage: star <name>'); return; }
+            const found = findLink(args.join(' '));
+            if (!found) { cliErr(`no bookmark matching "${args.join(' ')}"`); return; }
+            found.link.starred = !found.link.starred;
+            renderBookmarks();
+            cliOk(`${found.link.starred ? '★ starred' : '☆ unstarred'}: ${found.link.text}`);
+            cliWarn('in memory only  —  open settings → Save Changes to sync to gist');
+        },
+
+        weather() {
+            if (weatherCache) { showWeatherInCLI(); return; }
+            const city = localStorage.getItem('sp_weather_city');
+            if (city) {
+                cliWarn(`fetching weather for ${city}…`);
+                fetchWeatherByCity(city)
+                    .then(showWeatherInCLI)
+                    .catch(e => cliErr(e.message));
+            } else {
+                cliWarn('no cached data — set a city in settings or wait for auto-location');
+            }
+        },
+
+        gif(args) {
+            const list = loadGifList();
+            if (!list.length) { cliErr('no gifs loaded'); return; }
+
+            if (!args.length) {
+                const cur = list[gifIndex];
+                cliInfo(`[${gifIndex}/${list.length - 1}]  ${cur ? cur.name : '—'}`);
+                return;
+            }
+
+            switch (args[0].toLowerCase()) {
+                case 'next':
+                    gifIndex = (gifIndex + 1) % list.length;
+                    renderGif(); renderGifSettings();
+                    cliOk(`→ [${gifIndex}] ${list[gifIndex].name}`);
+                    break;
+                case 'prev':
+                    gifIndex = (gifIndex - 1 + list.length) % list.length;
+                    renderGif(); renderGifSettings();
+                    cliOk(`← [${gifIndex}] ${list[gifIndex].name}`);
+                    break;
+                case 'list':
+                    cliInfo(`${list.length} gif(s):`);
+                    list.forEach((g, i) => {
+                        cliPrint([`  ${i === gifIndex ? '▶' : ' '} [${i}]  ${g.name}`]);
+                    });
+                    break;
+                default: {
+                    const n = parseInt(args[0], 10);
+                    if (!isNaN(n) && n >= 0 && n < list.length) {
+                        gifIndex = n;
+                        renderGif(); renderGifSettings();
+                        cliOk(`→ [${gifIndex}] ${list[gifIndex].name}`);
+                    } else {
+                        cliErr(`unknown: "${args[0]}"  —  try: next  prev  list  <n>`);
+                    }
+                }
+            }
+        },
+
+        token(args) {
+            if (!args.length) {
+                if (!authToken) { cliWarn('no token stored'); return; }
+                const masked   = authToken.slice(0, 6) + '…' + authToken.slice(-4);
+                const expRaw   = localStorage.getItem('sp_token_expiry');
+                const daysLeft = expRaw
+                    ? Math.ceil((parseInt(expRaw, 10) - Date.now()) / 86_400_000)
+                    : '?';
+                cliInfo(`token:    ${masked}`);
+                cliPrint([
+                    `  gist:    ${gistId || 'unknown'}`,
+                    `  expires: in ${daysLeft} day(s)`,
+                ]);
+                return;
+            }
+            if (args[0] === 'reset') {
+                clearToken();
+                cliOk('token cleared — reloading…');
+                setTimeout(() => location.reload(), 700);
+            } else {
+                cliErr(`unknown subcommand "${args[0]}"  —  try: token  token reset`);
+            }
+        },
+    };
+
+    // ── Run a raw input string ──────────────────────────
+
+    function cliExec(raw) {
+        const trimmed = raw.trim();
+        if (!trimmed) return;
+        cliLine(`~/startpage $ ${trimmed}`, 'cmd');
+
+        cliCmdHistory.push(trimmed);
+        if (cliCmdHistory.length > 100) cliCmdHistory.shift();
+        cliHistIdx = -1;
+
+        const args    = parseArgs(trimmed);
+        const name    = args[0].toLowerCase();
+        const rest    = args.slice(1);
+        const handler = CMD[name];
+
+        if (handler) {
+            try { handler(rest); } catch (e) { cliErr(e.message); }
+        } else {
+            cliErr(`command not found: ${name}  —  type "help"`);
+        }
+    }
+
+    // ── Input keydown ───────────────────────────────────
+
+    cliInputEl.addEventListener('keydown', (e) => {
+        // Stop ALL keypresses inside the CLI from reaching the search bar handler
+        e.stopPropagation();
+
+        if (e.key === 'Escape')    { closeCLI(); return; }
+        if (e.key === 'ArrowUp')   {
+            e.preventDefault();
+            if (cliHistIdx < cliCmdHistory.length - 1) {
+                cliHistIdx++;
+                cliInputEl.value = cliCmdHistory[cliCmdHistory.length - 1 - cliHistIdx];
+                syncCliDisplay();
+            }
+            return;
+        }
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (cliHistIdx > 0) {
+                cliHistIdx--;
+                cliInputEl.value = cliCmdHistory[cliCmdHistory.length - 1 - cliHistIdx];
+            } else {
+                cliHistIdx       = -1;
+                cliInputEl.value = '';
+            }
+            syncCliDisplay();
+            return;
+        }
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const raw = cliInputEl.value;
+        cliInputEl.value = '';
+        syncCliDisplay();
+        cliExec(raw);
+    });
 
     // ═══════════════════════════════════════════════════
     //  BOOTSTRAP
@@ -1574,5 +1693,4 @@
     init();
     </script>
 </body>
-
 </html>
