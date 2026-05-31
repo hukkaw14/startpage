@@ -139,12 +139,15 @@
     // ═══════════════════════════════════════════════════
 
     // ── Constants ──────────────────────────────────────
-    const STORAGE_KEY_TOKEN   = 'sp_token';
-    const STORAGE_KEY_EXPIRY  = 'sp_token_expiry';
-    const STORAGE_KEY_GIST_ID = 'sp_gist_id';
-    const GIST_FILENAME       = 'startpage-bookmarks.json';
-    const TOKEN_TTL_MS        = 30 * 24 * 60 * 60 * 1000;
-    const GIST_API            = 'https://api.github.com';
+    const STORAGE_KEY_TOKEN     = 'sp_token';
+    const STORAGE_KEY_EXPIRY    = 'sp_token_expiry';
+    const STORAGE_KEY_GIST_ID   = 'sp_gist_id';
+    const STORAGE_KEY_GEO_LAT   = 'sp_weather_lat';    // cached auto-location
+    const STORAGE_KEY_GEO_LON   = 'sp_weather_lon';
+    const STORAGE_KEY_GEO_LABEL = 'sp_weather_label';
+    const GIST_FILENAME         = 'startpage-bookmarks.json';
+    const TOKEN_TTL_MS          = 30 * 24 * 60 * 60 * 1000;
+    const GIST_API              = 'https://api.github.com';
 
     // ── Token helpers ──────────────────────────────────
     function getStoredToken() {
@@ -824,8 +827,10 @@
         const c     = d.current;
         const temp  = Math.round(c.temperature_2m);
         const feels = Math.round(c.apparent_temperature);
+        // ── FIX: force label to lowercase ──────────────
+        const labelLc = label.toLowerCase();
         weatherCache = {
-            bar:       `${label} · ${temp}°c · ${wmoLabel(c.weather_code)}`,
+            bar:       `${labelLc} · ${temp}°c · ${wmoLabel(c.weather_code)}`,
             humidity:  `${c.relative_humidity_2m}%`,
             rain:      `${d.daily.precipitation_probability_max[0] ?? '—'}%`,
             feelsLike: `${feels}°c`
@@ -875,33 +880,51 @@
         renderWeather();
     });
 
-    // Single interval at top level — never accumulates across re-calls
+    // ── Weather fetch: only refreshes data, never re-locates ──
+    // Geolocation runs once (or when the user clicks "auto" in settings).
+    // Subsequent timed calls reuse cached coords stored in localStorage.
     async function runWeatherFetch() {
         const savedCity = localStorage.getItem('sp_weather_city');
         if (savedCity) {
-            weatherBar.textContent = 'loading…';
-            try        { await fetchWeatherByCity(savedCity); }
-            catch      { weatherBar.textContent = 'weather unavailable'; }
-        } else {
-            if (!navigator.geolocation) return;
-            weatherBar.textContent = 'locating…';
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    try {
-                        const lat   = pos.coords.latitude;
-                        const lon   = pos.coords.longitude;
-                        const label = await reverseGeocode(lat, lon) || 'here';
-                        await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
-                    } catch { weatherBar.textContent = 'weather unavailable'; }
-                },
-                () => { weatherBar.textContent = ''; }
-            );
+            try { await fetchWeatherByCity(savedCity); }
+            catch { weatherBar.textContent = 'weather unavailable'; }
+            return;
         }
+
+        // Use cached coords — no geolocation prompt on refresh
+        const cachedLat   = localStorage.getItem(STORAGE_KEY_GEO_LAT);
+        const cachedLon   = localStorage.getItem(STORAGE_KEY_GEO_LON);
+        const cachedLabel = localStorage.getItem(STORAGE_KEY_GEO_LABEL) || 'here';
+        if (cachedLat && cachedLon) {
+            try { await fetchWeatherByCoords(cachedLat, cachedLon, cachedLabel); }
+            catch { weatherBar.textContent = 'weather unavailable'; }
+            return;
+        }
+
+        // First ever load with no city set — acquire location once
+        if (!navigator.geolocation) return;
+        weatherBar.textContent = 'locating…';
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                try {
+                    const lat   = pos.coords.latitude;
+                    const lon   = pos.coords.longitude;
+                    const label = await reverseGeocode(lat, lon) || 'here';
+                    // Cache so subsequent refreshes skip geolocation entirely
+                    localStorage.setItem(STORAGE_KEY_GEO_LAT,   lat.toFixed(4));
+                    localStorage.setItem(STORAGE_KEY_GEO_LON,   lon.toFixed(4));
+                    localStorage.setItem(STORAGE_KEY_GEO_LABEL, label);
+                    await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
+                } catch { weatherBar.textContent = 'weather unavailable'; }
+            },
+            () => { weatherBar.textContent = ''; }
+        );
     }
 
     function initWeather() {
         runWeatherFetch();
-        setInterval(runWeatherFetch, 15 * 60 * 1000);
+        // Refresh weather data every minute — does NOT re-locate
+        setInterval(runWeatherFetch, 60 * 1000);
     }
 
     // ── Location settings wiring ──────────────────────
@@ -920,6 +943,10 @@
         try {
             await fetchWeatherByCity(city);
             localStorage.setItem('sp_weather_city', city);
+            // Clear any cached auto-location coords
+            localStorage.removeItem(STORAGE_KEY_GEO_LAT);
+            localStorage.removeItem(STORAGE_KEY_GEO_LON);
+            localStorage.removeItem(STORAGE_KEY_GEO_LABEL);
             locationStatus.textContent = `set to ${city}`;
         } catch (e) {
             locationStatus.textContent = `error: ${e.message}`;
@@ -931,7 +958,11 @@
             locationStatus.textContent = 'geolocation not supported';
             return;
         }
+        // Clear city and old cached coords — then re-locate fresh
         localStorage.removeItem('sp_weather_city');
+        localStorage.removeItem(STORAGE_KEY_GEO_LAT);
+        localStorage.removeItem(STORAGE_KEY_GEO_LON);
+        localStorage.removeItem(STORAGE_KEY_GEO_LABEL);
         locationInput.value        = '';
         locationStatus.textContent = 'locating…';
         navigator.geolocation.getCurrentPosition(
@@ -940,8 +971,12 @@
                     const lat   = pos.coords.latitude;
                     const lon   = pos.coords.longitude;
                     const label = await reverseGeocode(lat, lon) || 'here';
+                    // Persist new coords
+                    localStorage.setItem(STORAGE_KEY_GEO_LAT,   lat.toFixed(4));
+                    localStorage.setItem(STORAGE_KEY_GEO_LON,   lon.toFixed(4));
+                    localStorage.setItem(STORAGE_KEY_GEO_LABEL, label);
                     await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
-                    locationStatus.textContent = `using ${label}`;
+                    locationStatus.textContent = `using ${label.toLowerCase()}`;
                 } catch { locationStatus.textContent = 'weather unavailable'; }
             },
             () => { locationStatus.textContent = 'location denied'; }
