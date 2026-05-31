@@ -14,14 +14,14 @@
         <div id="token-box">
             <h2>> enter github token_</h2>
             <p>
-                A <strong>GitHub Personal Access Token</strong> with <code>gist</code> scope is required
+                a <strong>github personal access token</strong> with <code>gist</code> scope is required
                 to sync your bookmarks across devices.<br><br>
-                Create one at <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a>
+                create one at <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a>
                 → select <strong>gist</strong> scope only.<br>
-                Your token is cached locally for <strong>30 days</strong>.
+                your token is cached locally for <strong>30 days</strong>.
             </p>
             <input id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
-            <button id="token-submit">Connect &amp; Sync</button>
+            <button id="token-submit">connect &amp; sync</button>
             <div id="token-error"></div>
             <div id="token-loading"></div>
         </div>
@@ -64,7 +64,7 @@
             <a id="dot-btn-3" class="top-right-link-button button-3" target="_blank"></a>
             <div class="datetime-container">
                 <div id="current-datetime"></div>
-                <div id="weather-bar" title="Tap for more details"></div>
+                <div id="weather-bar" title="tap for more details"></div>
             </div>
             <div class="head">
                 <span id="prompt-prefix">> cd ~/</span><span id="search-text"></span><span id="blinker" class="blinking">_</span>
@@ -82,7 +82,7 @@
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Settings</h2>
+            <h2>settings</h2>
 
             <!-- GIFs -->
             <div class="location-settings-block" style="margin-bottom:14px;">
@@ -91,11 +91,11 @@
                 <div class="location-row" style="margin-top:8px;">
                     <input id="gif-url-input" type="url" placeholder="paste gif url…" autocomplete="off"
                         style="flex:1;min-width:0;padding:7px 8px;border:1px solid #83a598;border-radius:5px;background:#3c3836;color:#ebdbb2;font-family:'Fira Code',monospace;font-size:0.82em;box-sizing:border-box;" />
-                    <button id="gif-add-btn" class="modal-button loc-btn">Add</button>
+                    <button id="gif-add-btn" class="modal-button loc-btn">add</button>
                 </div>
                 <div class="location-row" style="margin-top:6px;">
                     <label id="gif-file-label" class="modal-button loc-btn" style="cursor:pointer;flex:1;text-align:center;">
-                        Browse local file
+                        browse local file
                         <input id="gif-file-input" type="file" accept="image/*" style="display:none;" multiple />
                     </label>
                 </div>
@@ -112,16 +112,16 @@
             <div class="location-settings-block">
                 <div class="location-settings-label">weather location</div>
                 <div class="location-row">
-                    <input id="location-input" type="text" placeholder="City name, e.g. Tokyo" autocomplete="off" />
-                    <button id="location-auto-btn" class="modal-button loc-btn" title="Use device location"> Auto</button>
-                    <button id="location-set-btn"  class="modal-button loc-btn">Set</button>
+                    <input id="location-input" type="text" placeholder="city name, e.g. tokyo" autocomplete="off" />
+                    <button id="location-auto-btn" class="modal-button loc-btn" title="use device location"> auto</button>
+                    <button id="location-set-btn"  class="modal-button loc-btn">set</button>
                 </div>
                 <div id="location-status"></div>
             </div>
 
             <div id="modal-categories"></div>
-            <button id="add-category-button" class="modal-button">Add New Category</button>
-            <button id="save-settings-button" class="modal-button">Save Changes</button>
+            <button id="add-category-button" class="modal-button">add new category</button>
+            <button id="save-settings-button" class="modal-button">save changes</button>
         </div>
     </div>
 
@@ -183,7 +183,7 @@
             const res = await fetch(`${GIST_API}/gists?per_page=100&page=${page}`, {
                 headers: gistHeaders(token)
             });
-            if (!res.ok) throw new Error('Failed to list gists');
+            if (!res.ok) throw new Error('failed to list gists');
             const gists = await res.json();
             if (gists.length === 0) break;
             const found = gists.find(g => g.files && g.files[GIST_FILENAME]);
@@ -195,12 +195,12 @@
             method:  'POST',
             headers: gistHeaders(token),
             body:    JSON.stringify({
-                description: 'Startpage Bookmarks',
+                description: 'startpage bookmarks',
                 public:      false,
                 files:       { [GIST_FILENAME]: { content: JSON.stringify(DEFAULT_BOOKMARKS, null, 2) } }
             })
         });
-        if (!res.ok) throw new Error('Failed to create gist');
+        if (!res.ok) throw new Error('failed to create gist');
         const gist = await res.json();
         return gist.id;
     }
@@ -210,10 +210,10 @@
             headers: gistHeaders(token),
             cache:   'no-store'
         });
-        if (!res.ok) throw new Error('Failed to load gist');
+        if (!res.ok) throw new Error('failed to load gist');
         const gist    = await res.json();
         const content = gist.files[GIST_FILENAME]?.content;
-        if (!content) throw new Error('Gist file missing');
+        if (!content) throw new Error('gist file missing');
         const parsed = JSON.parse(content);
         // Support old format (plain array)
         if (Array.isArray(parsed)) return { bookmarks: parsed, dotLinks: null, weatherCity: null };
@@ -226,7 +226,7 @@
             headers: gistHeaders(token),
             body:    JSON.stringify({ files: { [GIST_FILENAME]: { content: JSON.stringify(settings, null, 2) } } })
         });
-        if (!res.ok) throw new Error('Failed to save to gist');
+        if (!res.ok) throw new Error('failed to save to gist');
         return true;
     }
 
@@ -316,7 +316,7 @@
             ]
         },
         {
-            title: 'Unusual',
+            title: 'unusual',
             links: [
                 { text: 'fmhy',      url: 'https://fmhy.net/',                                                                       starred: false },
                 { text: 'the index', url: 'https://theindex.moe/',                                                                   starred: false },
@@ -442,14 +442,14 @@
         errorEl.textContent   = '';
         loadingEl.textContent = '';
 
-        if (!token) { errorEl.textContent = 'Token cannot be empty.'; return; }
+        if (!token) { errorEl.textContent = 'token cannot be empty.'; return; }
 
-        loadingEl.textContent = '⟳ Verifying token and finding/creating gist…';
+        loadingEl.textContent = '⟳ verifying token and finding/creating gist…';
         submitBtn.disabled    = true;
 
         try {
             const userRes = await fetch(`${GIST_API}/user`, { headers: gistHeaders(token) });
-            if (!userRes.ok) throw new Error('Invalid token — check scope and expiry.');
+            if (!userRes.ok) throw new Error('invalid token — check scope and expiry.');
 
             const id = await findOrCreateGist(token);
             storeToken(token);
@@ -460,7 +460,7 @@
             loadingEl.textContent = 'connected';
             await bootstrapApp();
         } catch (e) {
-            errorEl.textContent   = e.message || 'Connection failed.';
+            errorEl.textContent   = e.message || 'connection failed.';
             loadingEl.textContent = '';
         } finally {
             submitBtn.disabled = false;
@@ -485,17 +485,17 @@
         if (use24h) {
             timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
         } else {
-            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const ampm = hours >= 12 ? 'pm' : 'am';
             hours      = hours % 12 || 12;
             timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
         }
-        const dateString = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const dateString = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).toLowerCase();
         document.getElementById('current-datetime').textContent = `${dateString} ${timeString}`;
     }
 
     const datetimeEl  = document.getElementById('current-datetime');
     datetimeEl.style.cursor = 'pointer';
-    datetimeEl.title  = 'Toggle 12/24h';
+    datetimeEl.title  = 'toggle 12/24h';
     datetimeEl.addEventListener('click', () => {
         use24h = !use24h;
         localStorage.setItem('sp_clock_24h', use24h);
@@ -688,14 +688,14 @@
 
             const deleteCategoryButton = document.createElement('button');
             deleteCategoryButton.classList.add('delete-button');
-            deleteCategoryButton.textContent = 'Delete Category';
+            deleteCategoryButton.textContent = 'delete category';
             deleteCategoryButton.addEventListener('click', () => {
                 const confirmDiv = document.createElement('div');
                 confirmDiv.classList.add('custom-confirm');
                 confirmDiv.innerHTML = `
-                    <p>Delete this category?</p>
-                    <button id="confirm-yes">Yes</button>
-                    <button id="confirm-no">No</button>
+                    <p>delete this category?</p>
+                    <button id="confirm-yes">yes</button>
+                    <button id="confirm-no">no</button>
                 `;
                 document.body.appendChild(confirmDiv);
                 document.getElementById('confirm-yes').addEventListener('click', () => {
@@ -720,7 +720,7 @@
                 const starButton = document.createElement('button');
                 starButton.classList.add('star-button');
                 starButton.innerHTML = link.starred ? '★' : '☆';
-                starButton.title     = link.starred ? 'Unstar' : 'Star';
+                starButton.title     = link.starred ? 'unstar' : 'star';
                 if (link.starred) starButton.classList.add('is-starred');
                 starButton.addEventListener('click', () => {
                     link.starred = !link.starred;
@@ -731,20 +731,20 @@
                 const linkTextInput      = document.createElement('input');
                 linkTextInput.type       = 'text';
                 linkTextInput.value      = link.text;
-                linkTextInput.placeholder = 'Link Text';
+                linkTextInput.placeholder = 'link text';
                 linkTextInput.addEventListener('input', (e) => { link.text = e.target.value; });
                 linkItem.appendChild(linkTextInput);
 
                 const linkUrlInput      = document.createElement('input');
                 linkUrlInput.type       = 'url';
                 linkUrlInput.value      = link.url;
-                linkUrlInput.placeholder = 'Link URL';
+                linkUrlInput.placeholder = 'link url';
                 linkUrlInput.addEventListener('input', (e) => { link.url = e.target.value; });
                 linkItem.appendChild(linkUrlInput);
 
                 const deleteLinkButton = document.createElement('button');
                 deleteLinkButton.classList.add('delete-button');
-                deleteLinkButton.textContent = 'Delete';
+                deleteLinkButton.textContent = 'delete';
                 deleteLinkButton.addEventListener('click', () => {
                     category.links.splice(linkIndex, 1);
                     renderModalContent();
@@ -755,7 +755,7 @@
 
             const addLinkButton = document.createElement('button');
             addLinkButton.classList.add('add-link-button');
-            addLinkButton.textContent = 'Add Link';
+            addLinkButton.textContent = 'add link';
             addLinkButton.addEventListener('click', () => {
                 category.links.push({ text: '', url: '', starred: false });
                 renderModalContent();
@@ -768,13 +768,13 @@
     }
 
     addCategoryButton.addEventListener('click', () => {
-        bookmarksData.push({ title: 'New Category', links: [{ text: '', url: '', starred: false }] });
+        bookmarksData.push({ title: 'new category', links: [{ text: '', url: '', starred: false }] });
         renderModalContent();
     });
 
     saveSettingsButton.addEventListener('click', async () => {
         saveSettingsButton.disabled    = true;
-        saveSettingsButton.textContent = 'Saving…';
+        saveSettingsButton.textContent = 'saving…';
 
         try {
             const payload = buildSettingsPayload();
@@ -787,10 +787,10 @@
             renderBookmarks();
         } catch (e) {
             setSyncStatus('save failed: ' + e.message, '#cc241d');
-            alert('Save failed: ' + e.message);
+            alert('save failed: ' + e.message);
         } finally {
             saveSettingsButton.disabled    = false;
-            saveSettingsButton.textContent = 'Save Changes';
+            saveSettingsButton.textContent = 'save changes';
         }
     });
 
@@ -802,16 +802,16 @@
     let   weatherCache = null;
 
     function wmoLabel(code) {
-        if (code === 0) return 'Clear';
-        if (code <= 2)  return 'Partly Cloudy';
-        if (code === 3) return 'Overcast';
-        if (code <= 49) return 'Foggy';
-        if (code <= 59) return 'Drizzle';
-        if (code <= 69) return 'Rain';
-        if (code <= 79) return 'Snow';
-        if (code <= 84) return 'Showers';
-        if (code <= 94) return 'Thunderstorm';
-        return 'Storm';
+        if (code === 0) return 'clear';
+        if (code <= 2)  return 'partly cloudy';
+        if (code === 3) return 'overcast';
+        if (code <= 49) return 'foggy';
+        if (code <= 59) return 'drizzle';
+        if (code <= 69) return 'rain';
+        if (code <= 79) return 'snow';
+        if (code <= 84) return 'showers';
+        if (code <= 94) return 'thunderstorm';
+        return 'storm';
     }
 
     async function fetchWeatherByCoords(lat, lon, label) {
@@ -825,10 +825,10 @@
         const temp  = Math.round(c.temperature_2m);
         const feels = Math.round(c.apparent_temperature);
         weatherCache = {
-            bar:       `${label} · ${temp}°C · ${wmoLabel(c.weather_code)}`,
+            bar:       `${label} · ${temp}°c · ${wmoLabel(c.weather_code)}`,
             humidity:  `${c.relative_humidity_2m}%`,
             rain:      `${d.daily.precipitation_probability_max[0] ?? '—'}%`,
-            feelsLike: `${feels}°C`
+            feelsLike: `${feels}°c`
         };
         renderWeather();
     }
@@ -890,7 +890,7 @@
                     try {
                         const lat   = pos.coords.latitude;
                         const lon   = pos.coords.longitude;
-                        const label = await reverseGeocode(lat, lon) || 'Here';
+                        const label = await reverseGeocode(lat, lon) || 'here';
                         await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
                     } catch { weatherBar.textContent = 'weather unavailable'; }
                 },
@@ -915,7 +915,7 @@
 
     locationSetBtn.addEventListener('click', async () => {
         const city = locationInput.value.trim();
-        if (!city) { locationStatus.textContent = 'Enter a city name.'; return; }
+        if (!city) { locationStatus.textContent = 'enter a city name.'; return; }
         locationStatus.textContent = 'searching…';
         try {
             await fetchWeatherByCity(city);
@@ -939,7 +939,7 @@
                 try {
                     const lat   = pos.coords.latitude;
                     const lon   = pos.coords.longitude;
-                    const label = await reverseGeocode(lat, lon) || 'Here';
+                    const label = await reverseGeocode(lat, lon) || 'here';
                     await fetchWeatherByCoords(lat.toFixed(4), lon.toFixed(4), label);
                     locationStatus.textContent = `using ${label}`;
                 } catch { locationStatus.textContent = 'weather unavailable'; }
@@ -1240,7 +1240,7 @@
             urlInput.className   = 'dot-url-input';
 
             const saveBtn       = document.createElement('button');
-            saveBtn.textContent = 'Set';
+            saveBtn.textContent = 'set';
             saveBtn.className   = 'modal-button loc-btn';
             saveBtn.addEventListener('click', () => {
                 links[i].label = labelInput.value.trim();
@@ -1383,13 +1383,13 @@
                 '  ls                         list all categories',
                 '  ls <category>              list links in a category',
                 '  cat <category>             alias for ls <category>',
-                '  open <name|url>            open bookmark or URL in new tab',
+                '  open <name|url>            open bookmark or url in new tab',
                 '',
-                '  search <query>   [ddg]     DuckDuckGo search',
-                '  google <query>   [g]       Google search',
-                '  yt <query>       [youtube] YouTube search',
-                '  reddit <query>   [r]       Reddit search',
-                '  pinterest <query>[pin]     Pinterest search',
+                '  search <query>   [ddg]     duckduckgo search',
+                '  google <query>   [g]       google search',
+                '  yt <query>       [youtube] youtube search',
+                '  reddit <query>   [r]       reddit search',
+                '  pinterest <query>[pin]     pinterest search',
                 '',
                 '  add <cat> <name> <url>     add a link to a category',
                 '  rm  <cat> <name>           remove a link from a category',
@@ -1423,7 +1423,7 @@
             cliInfo(now.toLocaleString('en-US', {
                 weekday: 'long', year: 'numeric', month: 'long',
                 day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
-            }));
+            }).toLowerCase());
         },
 
         ls(args) {
@@ -1511,7 +1511,7 @@
             const name = args[args.length - 2];
             const catQ = args.slice(0, -2).join(' ');
             if (!/^https?:\/\//i.test(url)) {
-                cliErr(`URL must start with https://  —  got: "${url}"`);
+                cliErr(`url must start with https://  —  got: "${url}"`);
                 return;
             }
             const cat = findCategory(catQ);
@@ -1519,7 +1519,7 @@
             cat.links.push({ text: name, url, starred: false });
             renderBookmarks();
             cliOk(`added "${name}" → ${cat.title}`);
-            cliWarn('in memory only  —  open settings → Save Changes to sync to gist');
+            cliWarn('in memory only  —  open settings → save changes to sync to gist');
         },
 
         rm(args) {
@@ -1537,7 +1537,7 @@
             const removed = cat.links.splice(idx, 1)[0];
             renderBookmarks();
             cliOk(`removed "${removed.text}" from ${cat.title}`);
-            cliWarn('in memory only  —  open settings → Save Changes to sync to gist');
+            cliWarn('in memory only  —  open settings → save changes to sync to gist');
         },
 
         star(args) {
@@ -1547,7 +1547,7 @@
             found.link.starred = !found.link.starred;
             renderBookmarks();
             cliOk(`${found.link.starred ? '★ starred' : '☆ unstarred'}: ${found.link.text}`);
-            cliWarn('in memory only  —  open settings → Save Changes to sync to gist');
+            cliWarn('in memory only  —  open settings → save changes to sync to gist');
         },
 
         weather() {
