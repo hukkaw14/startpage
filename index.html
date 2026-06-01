@@ -1415,36 +1415,39 @@
         help() {
             cliPrint([
                 '',
-                '  ls                         list all categories',
-                '  ls <category>              list links in a category',
-                '  cat <category>             alias for ls <category>',
-                '  open <name|url>            open bookmark or url in new tab',
+                '  h | help                        show this help',
+                '  clear | cls                     clear terminal output',
+                '  exit | q | quit                 close terminal',
                 '',
-                '  search <query>   [ddg]     duckduckgo search',
-                '  google <query>   [g]       google search',
-                '  yt <query>       [youtube] youtube search',
-                '  reddit <query>   [r]       reddit search',
-                '  pinterest <query>[pin]     pinterest search',
+                '  ls [category]                   list all categories / links in one',
+                '  cat [category]                  alias for ls',
+                '  find | f <query>                search all bookmarks by name or url',
                 '',
-                '  add <cat> <name> <url>     add a link to a category',
-                '  rm  <cat> <name>           remove a link from a category',
-                '  star <name>                toggle ★ on a link',
+                '  open | o <name|url>             open bookmark or url in new tab',
+                '  add  | a <cat> <name> <url>     add a link to a category',
+                '  rm   | del <cat> <name>         remove a link from a category',
+                '  star | st <name>                toggle ★ on a link',
                 '',
-                '  gif                        current gif info',
-                '  gif next | prev            cycle gif',
-                '  gif list                   list all gifs',
-                '  gif <n>                    jump to gif by index',
+                '  search | ddg | s <query>        duckduckgo search',
+                '  google | g       <query>        google search',
+                '  yt     | youtube <query>        youtube search',
+                '  reddit | r       <query>        reddit search',
+                '  pinterest | pin  <query>        pinterest search',
                 '',
-                '  weather                    show weather snapshot',
-                '  date                       current date & time',
-                '  token                      show token status',
-                '  token reset                clear stored token & reload',
+                '  gif                             current gif info',
+                '  gif next | n                    cycle to next gif',
+                '  gif prev | p                    cycle to previous gif',
+                '  gif list | l                    list all gifs',
+                '  gif <n>                         jump to gif by index',
                 '',
-                '  clear | cls                clear terminal output',
-                '  exit | q | quit            close terminal',
+                '  weather | w                     show weather snapshot',
+                '  date | d                        current date & time',
+                '  token                           show token status',
+                '  token reset                     clear stored token & reload',
                 '',
             ]);
         },
+        h() { CMD.help(); },
 
         clear() { cliOutput.innerHTML = ''; },
         cls()   { cliOutput.innerHTML = ''; },
@@ -1460,6 +1463,7 @@
                 day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
             }).toLowerCase());
         },
+        d() { CMD.date(); },
 
         ls(args) {
             if (!args.length) {
@@ -1482,6 +1486,26 @@
 
         cat(args) { CMD.ls(args); },
 
+        find(args) {
+            if (!args.length) { cliErr('usage: find <query>'); return; }
+            const q = args.join(' ').toLowerCase();
+            const results = [];
+            bookmarksData.forEach(cat => {
+                cat.links.forEach(l => {
+                    if (l.text.toLowerCase().includes(q) || l.url.toLowerCase().includes(q)) {
+                        results.push({ cat: cat.title, text: l.text, url: l.url, starred: l.starred });
+                    }
+                });
+            });
+            if (!results.length) { cliErr(`no bookmarks matching "${q}"`); return; }
+            cliInfo(`${results.length} result(s) for "${q}":`);
+            results.forEach(r => {
+                const star = r.starred ? '★ ' : '  ';
+                cliPrint([`${star}[${r.cat.padEnd(10)}]  ${r.text.padEnd(16)}  ${r.url}`]);
+            });
+        },
+        f(args) { CMD.find(args); },
+
         open(args) {
             if (!args.length) { cliErr('usage: open <name|url>'); return; }
             const q = args.join(' ');
@@ -1496,6 +1520,7 @@
             window.open(found.link.url, '_blank');
             cliOk(`opened "${found.link.text}"  →  ${found.link.url}`);
         },
+        o(args) { CMD.open(args); },
 
         search(args) {
             if (!args.length) { cliErr('usage: search <query>'); return; }
@@ -1505,6 +1530,7 @@
         },
 
         ddg(args) { CMD.search(args); },
+        s(args)   { CMD.search(args); },
 
         google(args) {
             if (!args.length) { cliErr('usage: google <query>'); return; }
@@ -1540,22 +1566,21 @@
 
         add(args) {
             // Signature: add <category> <name> <url>
-            // URL is always last (must start with http); name is second-to-last; rest is category
+            // URL is always last; name is second-to-last; rest is category
             if (args.length < 3) { cliErr('usage: add <category> <name> <url>'); return; }
-            const url  = args[args.length - 1];
+            let  url  = args[args.length - 1];
             const name = args[args.length - 2];
             const catQ = args.slice(0, -2).join(' ');
-            if (!/^https?:\/\//i.test(url)) {
-                cliErr(`url must start with https://  —  got: "${url}"`);
-                return;
-            }
+            // Auto-prepend https:// if the user forgot the protocol
+            if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
             const cat = findCategory(catQ);
             if (!cat) { cliErr(`category "${catQ}" not found  —  run "ls" to see categories`); return; }
             cat.links.push({ text: name, url, starred: false });
             renderBookmarks();
-            cliOk(`added "${name}" → ${cat.title}`);
+            cliOk(`added "${name}" → ${cat.title}  (${url})`);
             cliWarn('in memory only  —  open settings → save changes to sync to gist');
         },
+        a(args) { CMD.add(args); },
 
         rm(args) {
             // Signature: rm <category> <name>
@@ -1574,6 +1599,8 @@
             cliOk(`removed "${removed.text}" from ${cat.title}`);
             cliWarn('in memory only  —  open settings → save changes to sync to gist');
         },
+        del(args)    { CMD.rm(args); },
+        remove(args) { CMD.rm(args); },
 
         star(args) {
             if (!args.length) { cliErr('usage: star <name>'); return; }
@@ -1584,6 +1611,7 @@
             cliOk(`${found.link.starred ? '★ starred' : '☆ unstarred'}: ${found.link.text}`);
             cliWarn('in memory only  —  open settings → save changes to sync to gist');
         },
+        st(args) { CMD.star(args); },
 
         weather() {
             if (weatherCache) { showWeatherInCLI(); return; }
@@ -1597,6 +1625,7 @@
                 cliWarn('no cached data — set a city in settings or wait for auto-location');
             }
         },
+        w() { CMD.weather(); },
 
         gif(args) {
             const list = loadGifList();
@@ -1609,17 +1638,17 @@
             }
 
             switch (args[0].toLowerCase()) {
-                case 'next':
+                case 'next': case 'n':
                     gifIndex = (gifIndex + 1) % list.length;
                     renderGif(); renderGifSettings();
                     cliOk(`→ [${gifIndex}] ${list[gifIndex].name}`);
                     break;
-                case 'prev':
+                case 'prev': case 'p': case 'back': case 'b':
                     gifIndex = (gifIndex - 1 + list.length) % list.length;
                     renderGif(); renderGifSettings();
                     cliOk(`← [${gifIndex}] ${list[gifIndex].name}`);
                     break;
-                case 'list':
+                case 'list': case 'l': case 'ls':
                     cliInfo(`${list.length} gif(s):`);
                     list.forEach((g, i) => {
                         cliPrint([`  ${i === gifIndex ? '▶' : ' '} [${i}]  ${g.name}`]);
@@ -1632,7 +1661,7 @@
                         renderGif(); renderGifSettings();
                         cliOk(`→ [${gifIndex}] ${list[gifIndex].name}`);
                     } else {
-                        cliErr(`unknown: "${args[0]}"  —  try: next  prev  list  <n>`);
+                        cliErr(`unknown: "${args[0]}"  —  try: next(n)  prev(p)  list(l)  <n>`);
                     }
                 }
             }
