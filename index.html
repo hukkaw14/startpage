@@ -1424,6 +1424,7 @@
                 '',
                 '  ── open stuff ──────────────────────────────────────',
                 '  o github        open your "github" bookmark',
+                '  o play 0        open link #0 from "play"  (after ls play)',
                 '  o youtube.com   go to any site  (https:// added for you)',
                 '',
                 '  ── add & remove bookmarks ──────────────────────────',
@@ -1516,7 +1517,32 @@
         f(args) { CMD.find(args); },
 
         open(args) {
-            if (!args.length) { cliErr('usage: open <name|url>'); return; }
+            if (!args.length) {
+                cliErr('usage: o <name>  or  o <section> <number>');
+                cliInfo('  e.g.  o chess          open "chess" by name');
+                cliInfo('  e.g.  o play 0         open #0 from "play"');
+                return;
+            }
+
+            // Index-based: last arg is a number → o <category> <index>
+            const lastArg = args[args.length - 1];
+            const idx = parseInt(lastArg, 10);
+            if (!isNaN(idx) && args.length >= 2) {
+                const catQ = args.slice(0, -1).join(' ');
+                const cat  = findCategory(catQ);
+                if (cat) {
+                    if (idx < 0 || idx >= cat.links.length) {
+                        cliErr(`index ${idx} out of range — "${cat.title}" has [0]–[${cat.links.length - 1}]`);
+                        return;
+                    }
+                    const link = cat.links[idx];
+                    window.open(link.url, '_blank');
+                    cliOk(`opened "${link.text}"  →  ${link.url}`);
+                    return;
+                }
+            }
+
+            // URL-based
             const q = args.join(' ');
             if (/^https?:\/\//i.test(q) || /^www\./i.test(q)) {
                 const url = q.startsWith('http') ? q : `https://${q}`;
@@ -1524,8 +1550,14 @@
                 cliOk(`opened ${url}`);
                 return;
             }
+
+            // Name-based (fuzzy)
             const found = findLink(q);
-            if (!found) { cliErr(`no bookmark matching "${q}"`); return; }
+            if (!found) {
+                cliErr(`nothing found matching "${q}"`);
+                cliInfo('  try: f <query> to search first');
+                return;
+            }
             window.open(found.link.url, '_blank');
             cliOk(`opened "${found.link.text}"  →  ${found.link.url}`);
         },
