@@ -1357,8 +1357,8 @@
 
     function cliWelcome() {
         cliPrint([
-            '~/startpage terminal  —  type "help" for commands',
-            'ctrl+r to toggle  ·  esc to close  ·  ↑↓ for history',
+            '~/startpage terminal  ·  type h to see all commands',
+            'ctrl+r or esc to close  ·  ↑↓ to recall past commands',
             '',
         ], 'muted');
     }
@@ -1415,35 +1415,44 @@
         help() {
             cliPrint([
                 '',
-                '  h | help                        show this help',
-                '  clear | cls                     clear terminal output',
-                '  exit | q | quit                 close terminal',
+                '  ★ tip: names with spaces need "quotes" around them',
                 '',
-                '  ls [category]                   list all categories / links in one',
-                '  cat [category]                  alias for ls',
-                '  find | f <query>                search all bookmarks by name or url',
+                '  ── look around ─────────────────────────────────────',
+                '  ls              show all your sections',
+                '  ls play         see links inside "play"',
+                '  f chess         search "chess" everywhere',
                 '',
-                '  open | o <name|url>             open bookmark or url in new tab',
-                '  add  | a <cat> <name> <url>     add a link to a category',
-                '  rm   | del <cat> <name>         remove a link from a category',
-                '  star | st <name>                toggle ★ on a link',
+                '  ── open stuff ──────────────────────────────────────',
+                '  o github        open your "github" bookmark',
+                '  o youtube.com   go to any site  (https:// added for you)',
                 '',
-                '  search | ddg | s <query>        duckduckgo search',
-                '  google | g       <query>        google search',
-                '  yt     | youtube <query>        youtube search',
-                '  reddit | r       <query>        reddit search',
-                '  pinterest | pin  <query>        pinterest search',
+                '  ── add & remove bookmarks ──────────────────────────',
+                '  a play chess chess.com         add "chess" to play',
+                '  a play "bongo cat" bongo.cat   spaces → use "quotes"',
+                '  rm play chess                  remove "chess" from play',
+                '  rm play "bongo cat"            spaces → use "quotes"',
+                '  st chess                       ★ star or unstar "chess"',
                 '',
-                '  gif                             current gif info',
-                '  gif next | n                    cycle to next gif',
-                '  gif prev | p                    cycle to previous gif',
-                '  gif list | l                    list all gifs',
-                '  gif <n>                         jump to gif by index',
+                '  ── search the web ──────────────────────────────────',
+                '  s  cute cats     duckduckgo  (default)',
+                '  g  cute cats     google',
+                '  yt cute cats     youtube',
+                '  r  cute cats     reddit',
+                '  pin cute cats    pinterest',
                 '',
-                '  weather | w                     show weather snapshot',
-                '  date | d                        current date & time',
-                '  token                           show token status',
-                '  token reset                     clear stored token & reload',
+                '  ── your gifs ───────────────────────────────────────',
+                '  gif        which gif is showing right now',
+                '  gif n/p    next / previous gif',
+                '  gif l      list all your gifs',
+                '  gif 2      jump straight to gif #2',
+                '',
+                '  ── everything else ─────────────────────────────────',
+                '  w              check the weather',
+                '  d              see today\'s date & time',
+                '  token          your github token info',
+                '  token reset    log out & reload the page',
+                '  clear          wipe this screen clean',
+                '  exit / q       close the terminal',
                 '',
             ]);
         },
@@ -1567,49 +1576,79 @@
         add(args) {
             // Signature: add <category> <name> <url>
             // URL is always last; name is second-to-last; rest is category
-            if (args.length < 3) { cliErr('usage: add <category> <name> <url>'); return; }
+            if (args.length < 3) {
+                cliErr('usage: a <cat> <name> <url>');
+                cliInfo('  e.g.  a play chess chess.com');
+                cliInfo('  e.g.  a play "bongo cat" bongo.cat   ← quotes for spaces');
+                return;
+            }
             let  url  = args[args.length - 1];
             const name = args[args.length - 2];
             const catQ = args.slice(0, -2).join(' ');
             // Auto-prepend https:// if the user forgot the protocol
             if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
             const cat = findCategory(catQ);
-            if (!cat) { cliErr(`category "${catQ}" not found  —  run "ls" to see categories`); return; }
+            if (!cat) {
+                cliErr(`category "${catQ}" not found`);
+                cliInfo('  run ls to see category names');
+                return;
+            }
             cat.links.push({ text: name, url, starred: false });
             renderBookmarks();
             cliOk(`added "${name}" → ${cat.title}  (${url})`);
-            cliWarn('in memory only  —  open settings → save changes to sync to gist');
+            cliWarn('not saved yet — open settings → save changes to sync');
         },
         a(args) { CMD.add(args); },
 
         rm(args) {
             // Signature: rm <category> <name>
-            if (args.length < 2) { cliErr('usage: rm <category> <name>'); return; }
+            if (args.length < 2) {
+                cliErr('usage: rm <cat> <name>');
+                cliInfo('  e.g.  rm play chess');
+                cliInfo('  e.g.  rm play "bongo cat"   ← quotes for spaces');
+                return;
+            }
             const name = args[args.length - 1];
             const catQ = args.slice(0, -1).join(' ');
             const cat  = findCategory(catQ);
-            if (!cat) { cliErr(`category "${catQ}" not found`); return; }
+            if (!cat) {
+                cliErr(`category "${catQ}" not found`);
+                cliInfo('  run ls to see category names');
+                return;
+            }
             const idx  = cat.links.findIndex(l =>
                 l.text.toLowerCase() === name.toLowerCase() ||
                 l.text.toLowerCase().includes(name.toLowerCase())
             );
-            if (idx === -1) { cliErr(`link "${name}" not found in "${cat.title}"`); return; }
+            if (idx === -1) {
+                cliErr(`"${name}" not found in "${cat.title}"`);
+                cliInfo(`  run ls ${cat.title} to see link names`);
+                return;
+            }
             const removed = cat.links.splice(idx, 1)[0];
             renderBookmarks();
             cliOk(`removed "${removed.text}" from ${cat.title}`);
-            cliWarn('in memory only  —  open settings → save changes to sync to gist');
+            cliWarn('not saved yet — open settings → save changes to sync');
         },
         del(args)    { CMD.rm(args); },
         remove(args) { CMD.rm(args); },
 
         star(args) {
-            if (!args.length) { cliErr('usage: star <name>'); return; }
+            if (!args.length) {
+                cliErr('usage: st <name>');
+                cliInfo('  e.g.  st github');
+                return;
+            }
             const found = findLink(args.join(' '));
-            if (!found) { cliErr(`no bookmark matching "${args.join(' ')}"`); return; }
+            if (!found) {
+                cliErr(`"${args.join(' ')}" not found`);
+                cliInfo('  run f <query> to search for it');
+                return;
+            }
             found.link.starred = !found.link.starred;
             renderBookmarks();
             cliOk(`${found.link.starred ? '★ starred' : '☆ unstarred'}: ${found.link.text}`);
-            cliWarn('in memory only  —  open settings → save changes to sync to gist');
+            cliWarn('not saved yet — open settings → save changes to sync');
         },
         st(args) { CMD.star(args); },
 
