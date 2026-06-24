@@ -841,48 +841,6 @@ h2 {
 }
 
 /* ─────────────────────────────────────────────
-   CLI DOT (bottom-left)
-───────────────────────────────────────────── */
-#cli-dot {
-    position:         fixed;
-    bottom:           15px;
-    left:             15px;
-    width:            11px;
-    height:           11px;
-    border-radius:    50%;
-    background-color: #d79921;
-    box-shadow:       0 0 5px rgba(215, 153, 33, 0.35);
-    border:           none;
-    cursor:           pointer;
-    z-index:          1000;
-    overflow:         visible;
-    transition:       transform 0.2s ease, filter 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-}
-#cli-dot:hover  { transform: scale(1.4); filter: brightness(1.25); }
-#cli-dot.active {
-    background-color: #fe8019;
-    box-shadow:       0 0 8px rgba(254, 128, 25, 0.7);
-}
-#cli-dot::after {
-    content:          'terminal';
-    position:         absolute;
-    top:              -26px;
-    left:             0;
-    background-color: #1d2021;
-    color:            var(--color-fg);
-    font-family:      "Fira Code", monospace;
-    font-size:        10px;
-    white-space:      nowrap;
-    padding:          3px 7px;
-    border-radius:    4px;
-    opacity:          0;
-    pointer-events:   none;
-    transition:       opacity 0.2s ease;
-    border:           1px solid rgba(235, 219, 178, 0.15);
-}
-#cli-dot:hover::after { opacity: 1; }
-
-/* ─────────────────────────────────────────────
    CLI OVERLAY
 ───────────────────────────────────────────── */
 #cli-overlay {
@@ -1027,6 +985,5 @@ h2 {
 
 /* ── Hide CLI entirely on mobile ──────────────── */
 @media (max-width: 768px) {
-    #cli-dot,
     #cli-overlay { display: none !important; }
 }
