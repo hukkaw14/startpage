@@ -47,9 +47,6 @@
         </div>
     </div>
 
-    <!-- CLI Dot (bottom-left) -->
-    <button id="cli-dot"></button>
-
     <div class="container">
         <div class="left-container">
             <button id="settings-button" class="top-left-link-button" data-tooltip="settings"></button>
@@ -520,8 +517,8 @@
     }
 
     document.addEventListener('keydown', (event) => {
-        // Ctrl+R → toggle CLI (prevents browser page-refresh)
-        if (event.ctrlKey && event.key === 'r') {
+        // Backtick → toggle CLI
+        if (event.key === '`') {
             event.preventDefault();
             toggleCLI();
             return;
@@ -1305,13 +1302,11 @@
     const cliOverlay = document.getElementById('cli-overlay');
     const cliOutput  = document.getElementById('cli-output');
     const cliInputEl = document.getElementById('cli-input');
-    const cliDotBtn  = document.getElementById('cli-dot');
 
     function openCLI() {
         if (window.innerWidth <= 768) return;   // no CLI on mobile/tablet
         cliOpen = true;
         cliOverlay.classList.add('show');
-        cliDotBtn.classList.add('active');
         if (!cliOutput.children.length) cliWelcome();
         setTimeout(() => cliInputEl.focus(), 50);
     }
@@ -1319,7 +1314,6 @@
     function closeCLI() {
         cliOpen = false;
         cliOverlay.classList.remove('show');
-        cliDotBtn.classList.remove('active');
         cliInputEl.blur();
     }
 
@@ -1330,7 +1324,6 @@
     function syncCliDisplay() { cliTyped.textContent = cliInputEl.value; }
     cliInputEl.addEventListener('input', syncCliDisplay);
 
-    cliDotBtn.addEventListener('click', toggleCLI);
     document.getElementById('cli-close').addEventListener('click', closeCLI);
 
     // Re-focus input on any click inside the overlay
@@ -1358,7 +1351,7 @@
     function cliWelcome() {
         cliPrint([
             '~/startpage terminal  ·  type h to see all commands',
-            'ctrl+r or esc to close  ·  ↑↓ to recall past commands',
+            'esc to close  ·  ↑↓ to recall past commands',
             '',
         ], 'muted');
     }
