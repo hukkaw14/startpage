@@ -56,9 +56,9 @@
         </div>
 
         <div class="right-container">
-            <a id="dot-btn-1" class="top-right-link-button button-1" target="_blank"></a>
-            <a id="dot-btn-2" class="top-right-link-button button-2" target="_blank"></a>
-            <a id="dot-btn-3" class="top-right-link-button button-3" target="_blank"></a>
+            <a id="dot-btn-1" class="top-right-link-button button-1" target="_self"></a>
+            <a id="dot-btn-2" class="top-right-link-button button-2" target="_self"></a>
+            <a id="dot-btn-3" class="top-right-link-button button-3" target="_self"></a>
             <div class="datetime-container">
                 <div id="current-datetime"></div>
                 <div id="weather-bar" style="display:none"></div>
@@ -544,7 +544,7 @@
                 const url = isValidUrl(q)
                     ? (q.startsWith('http') ? q : `http://${q}`)
                     : `https://www.duckduckgo.com/search?q=${encodeURIComponent(q)}`;
-                window.open(url, '_blank');
+                window.open(url, '_self');
             }
             mobileSearch.value = '';
             mobileSearch.blur();
@@ -577,7 +577,7 @@
                 const a  = document.createElement('a');
                 a.href        = link.url;
                 a.textContent = link.text;
-                a.target      = '_blank';
+                a.target      = '_self';
                 if (link.starred) a.classList.add('starred-link');
                 li.appendChild(a);
                 return li;
@@ -1516,7 +1516,7 @@
                         return;
                     }
                     const link = cat.links[idx];
-                    window.open(link.url, '_blank');
+                    window.open(link.url, '_self');
                     cliOk(`opened "${link.text}"  →  ${link.url}`);
                     return;
                 }
@@ -1526,7 +1526,7 @@
             const q = args.join(' ');
             if (/^https?:\/\//i.test(q) || /^www\./i.test(q)) {
                 const url = q.startsWith('http') ? q : `https://${q}`;
-                window.open(url, '_blank');
+                window.open(url, '_self');
                 cliOk(`opened ${url}`);
                 return;
             }
@@ -1538,7 +1538,7 @@
                 cliInfo('  try: f <query> to search first');
                 return;
             }
-            window.open(found.link.url, '_blank');
+            window.open(found.link.url, '_self');
             cliOk(`opened "${found.link.text}"  →  ${found.link.url}`);
         },
         o(args) { CMD.open(args); },
@@ -1546,7 +1546,7 @@
         search(args) {
             if (!args.length) { cliErr('usage: search <query>'); return; }
             const q = args.join(' ');
-            window.open(`https://duckduckgo.com/?q=${encodeURIComponent(q)}`, '_blank');
+            window.open(`https://duckduckgo.com/?q=${encodeURIComponent(q)}`, '_self');
             cliOk(`ddg → ${q}`);
         },
 
@@ -1556,7 +1556,7 @@
         google(args) {
             if (!args.length) { cliErr('usage: google <query>'); return; }
             const q = args.join(' ');
-            window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_self');
             cliOk(`google → ${q}`);
         },
         g(args) { CMD.google(args); },
@@ -1564,7 +1564,7 @@
         yt(args) {
             if (!args.length) { cliErr('usage: yt <query>'); return; }
             const q = args.join(' ');
-            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, '_blank');
+            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`, '_self');
             cliOk(`youtube → ${q}`);
         },
         youtube(args) { CMD.yt(args); },
@@ -1572,7 +1572,7 @@
         reddit(args) {
             if (!args.length) { cliErr('usage: reddit <query>'); return; }
             const q = args.join(' ');
-            window.open(`https://www.reddit.com/search/?q=${encodeURIComponent(q)}`, '_blank');
+            window.open(`https://www.reddit.com/search/?q=${encodeURIComponent(q)}`, '_self');
             cliOk(`reddit → ${q}`);
         },
         r(args) { CMD.reddit(args); },
@@ -1580,7 +1580,7 @@
         pinterest(args) {
             if (!args.length) { cliErr('usage: pinterest <query>'); return; }
             const q = args.join(' ');
-            window.open(`https://www.pinterest.com/search/pins/?q=${encodeURIComponent(q)}`, '_blank');
+            window.open(`https://www.pinterest.com/search/pins/?q=${encodeURIComponent(q)}`, '_self');
             cliOk(`pinterest → ${q}`);
         },
         pin(args) { CMD.pinterest(args); },
