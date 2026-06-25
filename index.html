@@ -382,37 +382,34 @@
     // ═══════════════════════════════════════════════════
     //  INIT — token gate
     // ═══════════════════════════════════════════════════
-    // ── Hardcoded token (private repo — safe) ─────────
-    // ใส่ GitHub Personal Access Token ของคุณตรงนี้ (scope: gist)
-    // สร้างได้ที่ https://github.com/settings/tokens/new → เลือก gist เท่านั้น
-    const HARDCODED_TOKEN = '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';
-
     async function init() {
+        // ── URL hash token (ปลอดภัย — token ไม่อยู่ใน code) ──────────
+        // เปิดครั้งแรกบนอุปกรณ์ใหม่ด้วย: https://hukkaw14.github.io/startpage/#ghp_yourtoken
+        // หลังจากนั้นเปิด URL ปกติได้เลย (cache 30 วัน)
+        const hashToken = window.location.hash.slice(1);
+        if (hashToken && hashToken.startsWith('ghp_')) {
+            storeToken(hashToken);
+            // ล้าง hash ออกจาก URL ไม่ให้เห็นใน browser history
+            history.replaceState(null, '', window.location.pathname);
+        }
+
         authToken = getStoredToken();
         gistId    = localStorage.getItem(STORAGE_KEY_GIST_ID);
-
-        // Always use hardcoded token — seed into localStorage if not cached
-        if (!authToken) {
-            storeToken(HARDCODED_TOKEN);
-            authToken = HARDCODED_TOKEN;
-        }
 
         if (authToken && gistId) {
             await bootstrapApp();
         } else if (authToken && !gistId) {
-            // Token exists but gist ID lost — re-discover
             try {
                 setSyncStatus('⟳ discovering gist…');
                 gistId = await findOrCreateGist(authToken);
                 localStorage.setItem(STORAGE_KEY_GIST_ID, gistId);
                 await bootstrapApp();
             } catch {
-                // Gist error — still load app with defaults, don't show gate
-                await bootstrapApp();
+                clearToken();
+                showTokenGate();
             }
         } else {
-            // Fallback — should never reach here with hardcoded token
-            await bootstrapApp();
+            showTokenGate();
         }
     }
 
