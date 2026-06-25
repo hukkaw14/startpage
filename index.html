@@ -10,7 +10,7 @@
 <body>
 
     <!-- Token Gate -->
-    <div id="token-gate" class="show">
+    <div id="token-gate">
         <div id="token-box">
             <h2>> enter github token_</h2>
             <p>
@@ -385,14 +385,14 @@
     // ── Hardcoded token (private repo — safe) ─────────
     // ใส่ GitHub Personal Access Token ของคุณตรงนี้ (scope: gist)
     // สร้างได้ที่ https://github.com/settings/tokens/new → เลือก gist เท่านั้น
-    const HARDCODED_TOKEN = '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';
+    const HARDCODED_TOKEN = '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';
 
     async function init() {
         authToken = getStoredToken();
         gistId    = localStorage.getItem(STORAGE_KEY_GIST_ID);
 
-        // Auto-seed token from hardcoded value if not cached yet
-        if (!authToken && HARDCODED_TOKEN && !HARDCODED_TOKEN.includes('REPLACE')) {
+        // Always use hardcoded token — seed into localStorage if not cached
+        if (!authToken) {
             storeToken(HARDCODED_TOKEN);
             authToken = HARDCODED_TOKEN;
         }
@@ -407,11 +407,12 @@
                 localStorage.setItem(STORAGE_KEY_GIST_ID, gistId);
                 await bootstrapApp();
             } catch {
-                clearToken();
-                showTokenGate();
+                // Gist error — still load app with defaults, don't show gate
+                await bootstrapApp();
             }
         } else {
-            showTokenGate();
+            // Fallback — should never reach here with hardcoded token
+            await bootstrapApp();
         }
     }
 
